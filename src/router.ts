@@ -273,7 +273,7 @@ export class ViewRouter {
       loadedView.router.current = match.route.name;
     }
 
-    const newElement = await this.runView(match.route.view, loadedView.routerElement, Object.assign({}, queryParams, match.params));
+    const newElement = await this.runView(match.route.view, loadedView.routerElement, Object.assign({}, match.route.data, queryParams, match.params));
 
     this.loadedViewsStack.push({
       matchedOn: match.matchedOn,

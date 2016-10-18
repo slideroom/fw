@@ -370,7 +370,7 @@ var ViewRouter = (function () {
                                 loadedView.router.current = match.route.name;
                             }
                             context$3$0.next = 25;
-                            return this.runView(match.route.view, loadedView.routerElement, Object.assign({}, queryParams, match.params));
+                            return this.runView(match.route.view, loadedView.routerElement, Object.assign({}, match.route.data, queryParams, match.params));
 
                         case 25:
                             newElement = context$3$0.sent;

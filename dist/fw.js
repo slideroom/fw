@@ -100,7 +100,7 @@ var FrameworkConfig = (function () {
     }, {
         key: "withConfig",
         value: function withConfig(configType, fileName) {
-            return __awaiter(this, void 0, Promise, regeneratorRuntime.mark(function callee$2$0() {
+            return __awaiter(this, void 0, void 0, regeneratorRuntime.mark(function callee$2$0() {
                 var n, res, configInstance, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, prop;
 
                 return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {

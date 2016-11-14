@@ -164,34 +164,11 @@ declare module 'fw/fw' {
 	export function bootstrap(cb: (fwConfig: FrameworkConfig) => Promise<void>): Promise<void>;
 
 }
-declare module 'fw/store' {
-	import { makerOf } from 'fw/container';
-	import { Subscription } from 'fw/bus';
-	export interface HandlerWrapper {
-	    handle(method: () => Promise<void> | void, headArgument: any, ...tailArguments: any[]): Promise<void> | void;
-	}
-	export function handle(fn: any, wrapper?: makerOf<HandlerWrapper>): (target: any, method: any) => void;
-	export function waitFor(storeToWaitOn: any): (waiter: any) => void;
-	export function dispatch(event: any): Promise<void>;
-	export abstract class Store<T> {
-	    state: T;
-	    private stateSet;
-	    private waiters;
-	    private localBus;
-	    constructor();
-	    protected abstract defaultState(): T;
-	    protected setState(newState: any): void;
-	    wait(): Promise<void>;
-	    onStateChanged(cb: () => void): Subscription;
-	}
-
-}
 declare module 'fw' {
 	export { Container, ContainerInstance } from 'fw/container';
 	export { Navigator, RouterConfig, Route, ViewRouterLocationChanged } from 'fw/router';
 	export { bootstrap, inject, needs, FrameworkConfig } from 'fw/fw';
 	export { Bus, Subscription } from 'fw/bus';
-	export { dispatch, handle, Store, waitFor } from 'fw/store';
 	export { ViewEngine, View, prop, ComponentEventBus } from 'fw/view-engine';
 	export { Network, NetworkException, NVP } from 'fw/network';
 

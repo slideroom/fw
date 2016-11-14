@@ -76,33 +76,6 @@ Object.defineProperty(exports, "Bus", {
   }
 });
 
-var _store = require("./store");
-
-Object.defineProperty(exports, "dispatch", {
-  enumerable: true,
-  get: function get() {
-    return _store.dispatch;
-  }
-});
-Object.defineProperty(exports, "handle", {
-  enumerable: true,
-  get: function get() {
-    return _store.handle;
-  }
-});
-Object.defineProperty(exports, "Store", {
-  enumerable: true,
-  get: function get() {
-    return _store.Store;
-  }
-});
-Object.defineProperty(exports, "waitFor", {
-  enumerable: true,
-  get: function get() {
-    return _store.waitFor;
-  }
-});
-
 var _viewEngine = require("./view-engine");
 
 Object.defineProperty(exports, "ViewEngine", {

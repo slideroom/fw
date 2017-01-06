@@ -1,6 +1,6 @@
 {
   "name": "fw",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -27,7 +27,7 @@
     "istanbul": "^0.4.4",
     "mocha": "^3.0.2",
     "run-sequence": "^1.2.1",
-    "typescript": "^2.0.9",
+    "typescript": "2.0.9",
     "vinyl-paths": "^2.1.0"
   }
 }

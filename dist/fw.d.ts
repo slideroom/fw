@@ -171,5 +171,6 @@ declare module 'fw' {
 	export { Bus, Subscription } from 'fw/bus';
 	export { ViewEngine, View, prop, ComponentEventBus } from 'fw/view-engine';
 	export { Network, NetworkException, NVP } from 'fw/network';
+	export { kebab } from 'fw/util';
 
 }

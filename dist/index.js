@@ -117,3 +117,12 @@ Object.defineProperty(exports, "NetworkException", {
     return _network.NetworkException;
   }
 });
+
+var _util = require("./util");
+
+Object.defineProperty(exports, "kebab", {
+  enumerable: true,
+  get: function get() {
+    return _util.kebab;
+  }
+});

@@ -72,7 +72,7 @@ var Network = (function () {
             if (params == null) return "";
             var pairs = [];
             for (var key in params) {
-                if (params[key]) {
+                if (params[key] != null) {
                     pairs.push(encodeURIComponent(key) + "=" + encodeURIComponent(params[key]));
                 }
             }

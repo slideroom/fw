@@ -55,7 +55,7 @@ export class Network {
     let pairs = [];
 
     for (let key in params) {
-      if (params[key]) {
+      if (params[key] != null) {
         pairs.push(encodeURIComponent(key) + "=" + encodeURIComponent(params[key]));
       }
     }

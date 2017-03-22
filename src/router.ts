@@ -139,7 +139,7 @@ type LoadedView = {
   view: Function;
   routerElement: any;
   router: RouteMatcher;
-  routerElementComponent: vuejs.Vue,
+  routerElementComponent: Vue,
   viewInstance: View<any>;
 };
 

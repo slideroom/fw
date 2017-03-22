@@ -34,7 +34,12 @@ var ComponentEventBus = (function () {
                 data[_key - 1] = arguments[_key];
             }
 
-            (_instance = this.instance).$dispatch.apply(_instance, [name].concat(data));
+            (_instance = this.instance).$emit.apply(_instance, [name].concat(data));
+        }
+    }, {
+        key: "updateModel",
+        value: function updateModel(value) {
+            this.dispatch("input", value);
         }
     }]);
 
@@ -148,12 +153,16 @@ var Component = (function () {
                         }
                     }
                 },
-                attached: function attached() {
-                    if (this.$els) Object.assign(this, this.$els);
-                    var attachedFn = this.$data["attached"];
-                    if (typeof attachedFn === "function") {
-                        attachedFn.apply(this, []);
-                    }
+                mounted: function mounted() {
+                    var _this2 = this;
+
+                    this.$nextTick(function () {
+                        if (_this2.$refs) Object.assign(_this2, _this2.$refs);
+                        var attachedFn = _this2.$data["attached"];
+                        if (typeof attachedFn === "function") {
+                            attachedFn.apply(_this2, []);
+                        }
+                    });
                 },
                 destroyed: function destroyed() {
                     var detachedFn = this.$data["detached"];
@@ -199,7 +208,6 @@ var View = (function () {
             var vm = this.viewModel;
             this.r = new _vue2["default"]({
                 el: element,
-                replace: false,
                 template: this.template,
                 data: vm,
                 created: function created() {
@@ -234,10 +242,14 @@ var View = (function () {
                         }
                     }
                 },
-                attached: function attached() {
-                    if (this.$els) Object.assign(this, this.$els);
-                    var attachedFn = vm["attached"];
-                    if (typeof attachedFn === "function") attachedFn.apply(this, []);
+                mounted: function mounted() {
+                    var _this3 = this;
+
+                    this.$nextTick(function () {
+                        if (_this3.$refs) Object.assign(_this3, _this3.$refs);
+                        var attachedFn = vm["attached"];
+                        if (typeof attachedFn === "function") attachedFn.apply(_this3, []);
+                    });
                 },
                 destroyed: function destroyed() {
                     var detachedFn = vm["detached"];
@@ -250,13 +262,13 @@ var View = (function () {
     }, {
         key: "activate",
         value: function activate() {
-            var _this2 = this;
+            var _this4 = this;
 
             var vm = this.viewModel;
             return new Promise(function (res, rej) {
                 var activateFn = vm["activate"];
                 if (typeof activateFn === "function") {
-                    var activateRes = activateFn.apply(vm, [_this2.activateParams]);
+                    var activateRes = activateFn.apply(vm, [_this4.activateParams]);
                     if (activateRes instanceof Promise) {
                         activateRes.then(res);
                     } else {
@@ -280,7 +292,7 @@ var View = (function () {
         key: "getRouterViewElement",
         value: function getRouterViewElement() {
             var component = this.r.$children.find(function (c) {
-                return (0, _util.kebab)(c.constructor.name) == "router-view";
+                return c.$el.className == "__router_view";
             });
             if (!component) return { node: null, component: null };
             return { node: component.$el, component: component };
@@ -290,7 +302,7 @@ var View = (function () {
         value: function remove() {
             var kill = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
 
-            this.r.$destroy(kill);
+            this.r.$destroy();
         }
     }]);
 
@@ -329,12 +341,12 @@ var ViewEngine = (function () {
     }, {
         key: "setupComponents",
         value: function setupComponents(c) {
-            var _this3 = this;
+            var _this5 = this;
 
             var needs = Reflect.get(c, "components");
             if (needs == null) return;
             needs.forEach(function (need) {
-                return _this3.registerComponent(need);
+                return _this5.registerComponent(need);
             });
         }
     }, {

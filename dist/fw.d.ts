@@ -34,6 +34,7 @@ declare module 'fw/view-engine' {
 	    private instance;
 	    constructor(instance: any);
 	    dispatch(name: string, ...data: any[]): void;
+	    updateModel(value: any): void;
 	}
 	export function prop(defaultValue: any): (target: any, key: any, descriptor?: any) => void;
 	export class View<T> {
@@ -158,6 +159,7 @@ declare module 'fw/network' {
 }
 declare module 'fw/fw' {
 	import { makerOf } from 'fw/container';
+	import Vue, { PluginObject } from "vue";
 	export function inject(target: any): void;
 	export function needs(...things: any[]): (target: any) => void;
 	export class FrameworkConfig {
@@ -166,9 +168,7 @@ declare module 'fw/fw' {
 	    registerInstance<T>(key: makerOf<T>, instance: T): void;
 	    registerComponents(...components: any[]): void;
 	    withConfig<T>(configType: makerOf<T>, fileName: string): Promise<T>;
-	    useVuePlugin(plugin: {
-	        install: Function;
-	    }): void;
+	    useVuePlugin<T>(plugin: PluginObject<T> | ((vue: typeof Vue, options?: T) => void)): void;
 	}
 	export function bootstrap(cb: (fwConfig: FrameworkConfig) => Promise<void>): Promise<void>;
 

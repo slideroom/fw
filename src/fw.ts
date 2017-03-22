@@ -4,7 +4,7 @@ import { ViewEngine } from "./view-engine";
 import { ViewRouter, Navigator } from "./router";
 import { Bus } from "./bus";
 import { Network } from "./network";
-import Vue from "vue";
+import Vue, { PluginObject } from "vue";
 
 export function inject(target) { return; }
 
@@ -44,7 +44,7 @@ export class FrameworkConfig {
     return configInstance;
   }
 
-  public useVuePlugin(plugin: { install: Function }) {
+  public useVuePlugin<T>(plugin: PluginObject<T> | ((vue: typeof Vue, options?: T) => void)) {
     Vue.use(plugin);
   }
 }

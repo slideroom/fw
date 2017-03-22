@@ -1,15 +1,17 @@
 import { kebab } from "./util";
 import { Container, makerOf, ContainerOverrider } from "./container";
 
-import Vue from "vue";
+import Vue, { PropOptions } from "vue";
 
 
 export class ComponentEventBus {
   constructor(private instance: any) { }
 
   public dispatch(name: string, ...data: any[]) {
-    this.instance.$dispatch(name, ...data);
+    this.instance.$emit(name, ...data);
   }
+
+  public updateModel(value: any) { this.dispatch("input", value); }
 }
 
 type propDef = { key: string, defaultValue: any };
@@ -24,7 +26,7 @@ export function prop(defaultValue) {
 
 function getProps(cl) {
   var props: propDef[] = Reflect.get(cl, "view-engine:props") || [];
-  let propObject: { [key: string]: vuejs.PropOption } = {};
+  let propObject: { [key: string]: PropOptions } = {};
 
   props.forEach(p => {
       propObject[p.key] = {
@@ -53,33 +55,36 @@ class Component<T> {
       props: props,
       created: function() {
         // setup the methods
-        this.methods = {};
+
+        (this as any).methods = {};
         for (let m of Object.getOwnPropertyNames(this.$data.constructor.prototype)) {
           if (typeof this.$data[m] == "function" && m != "constructor") {
             const boundFn = this.$data[m].bind(this);
-            this.methods[m] = boundFn;
+            (this as any).methods[m] = boundFn;
             this[m] = boundFn;
           }
         }
 
-        this.___propWatcherUnscribers = [];
+        (this as any).___propWatcherUnscribers = [];
 
         for (let propName of Object.getOwnPropertyNames(props)) {
           const propWatcherName = propName + "Changed"
           if (typeof this.$data[propWatcherName] == "function") {
             const unsub = this.$watch(propName, this[propWatcherName]);
-            this.___propWatcherUnscribers.push(unsub);
+            (this as any).___propWatcherUnscribers.push(unsub);
           }
         }
       },
-      attached: function() {
-        if (this.$els)
-          Object.assign(this, this.$els);
+      mounted: function() {
+        this.$nextTick(() => {
+          if (this.$refs)
+            Object.assign(this, this.$refs);
 
-        const attachedFn = this.$data["attached"];
-        if (typeof attachedFn === "function") {
-          attachedFn.apply(this, []);
-        }
+          const attachedFn = this.$data["attached"];
+          if (typeof attachedFn === "function") {
+            attachedFn.apply(this, []);
+          }
+        });
       },
       destroyed: function() {
         const detachedFn = this.$data["detached"];
@@ -87,7 +92,7 @@ class Component<T> {
           detachedFn.apply(this, []);
         }
 
-        this.___propWatcherUnscribers.forEach(u => u());
+        (this as any).___propWatcherUnscribers.forEach(u => u());
       },
     });
   }
@@ -103,7 +108,7 @@ function hookUpComponentRefs(r, rViewModel) {
 }
 
 export class View<T> {
-  private r: vuejs.Vue = null;
+  private r: Vue = null;
 
   constructor(private viewModel: T, private template: string, private activateParams = null) { }
 
@@ -113,26 +118,27 @@ export class View<T> {
 
     this.r = new Vue({
       el: element,
-      replace: false,
       template: this.template,
       data: vm,
       created: function() {
         // setup the methods
-        this.methods = {};
+        (this as any).methods = {};
         for (let m of Object.getOwnPropertyNames(vm.constructor.prototype)) {
           if (typeof vm[m] == "function" && m != "constructor") {
             const boundFn = vm[m].bind(vm);
             this[m] = boundFn;
-            this.methods[m] = boundFn;
+            (this as any).methods[m] = boundFn;
           }
         }
       },
-      attached: function() {
-        if (this.$els)
-          Object.assign(this, this.$els);
+      mounted: function() {
+        this.$nextTick(() => {
+          if (this.$refs)
+            Object.assign(this, this.$refs);
 
-        const attachedFn = vm["attached"];
-        if (typeof attachedFn === "function") attachedFn.apply(this, []);
+          const attachedFn = vm["attached"];
+          if (typeof attachedFn === "function") attachedFn.apply(this, []);
+        });
       },
       destroyed: function() {
         const detachedFn = vm["detached"];
@@ -172,7 +178,7 @@ export class View<T> {
   }
 
   getRouterViewElement() {
-    const component = this.r.$children.find(c => kebab(c.constructor.name) == "router-view");
+    const component = this.r.$children.find(c => c.$el.className == "__router_view");
 
     if (!component) return { node: null, component: null };
 
@@ -180,7 +186,7 @@ export class View<T> {
   }
 
   remove(kill = true) {
-    this.r.$destroy(kill);
+    this.r.$destroy();
   }
 }
 

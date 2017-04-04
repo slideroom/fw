@@ -294,13 +294,24 @@ export class ViewRouter {
 
     const routerSetup = v.getRouterSetupFunction();
 
+    let didRender = false;
+
     let router: RouteMatcher = null;
     if (routerSetup) {
       router = new RouteMatcher();
-      routerSetup(router);
+      const setupRes = routerSetup(router);
+      if (setupRes instanceof Promise) {
+        // go ahead and render the view, so if you wanted to, you can show a loader if you are
+        // doing some sort of code splitting
+        v.renderTo(where);
+        didRender = true;
+
+        await setupRes;
+      }
     }
 
-    v.renderTo(where);
+    if (!didRender)
+      v.renderTo(where);
 
     await v.activate();
 

@@ -401,30 +401,48 @@ var ViewRouter = (function () {
             var params = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
 
             return __awaiter(this, void 0, void 0, regeneratorRuntime.mark(function callee$2$0() {
-                var v, routerSetup, router, _v$getRouterViewElement, routerElement, routerElementComponent;
+                var v, routerSetup, didRender, router, setupRes, _v$getRouterViewElement, routerElement, routerElementComponent;
 
                 return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
                     while (1) switch (context$3$0.prev = context$3$0.next) {
                         case 0:
                             v = this.viewEngine.loadView(view, params);
                             routerSetup = v.getRouterSetupFunction();
+                            didRender = false;
                             router = null;
 
-                            if (routerSetup) {
-                                router = new RouteMatcher();
-                                routerSetup(router);
+                            if (!routerSetup) {
+                                context$3$0.next = 12;
+                                break;
                             }
+
+                            router = new RouteMatcher();
+                            setupRes = routerSetup(router);
+
+                            if (!(setupRes instanceof Promise)) {
+                                context$3$0.next = 12;
+                                break;
+                            }
+
+                            // go ahead and render the view, so if you wanted to, you can show a loader if you are
+                            // doing some sort of code splitting
                             v.renderTo(where);
-                            context$3$0.next = 7;
+                            didRender = true;
+                            context$3$0.next = 12;
+                            return setupRes;
+
+                        case 12:
+                            if (!didRender) v.renderTo(where);
+                            context$3$0.next = 15;
                             return v.activate();
 
-                        case 7:
+                        case 15:
                             _v$getRouterViewElement = v.getRouterViewElement();
                             routerElement = _v$getRouterViewElement.node;
                             routerElementComponent = _v$getRouterViewElement.component;
                             return context$3$0.abrupt("return", { view: view, routerElement: routerElement, router: router, routerElementComponent: routerElementComponent, viewInstance: v });
 
-                        case 11:
+                        case 19:
                         case "end":
                             return context$3$0.stop();
                     }

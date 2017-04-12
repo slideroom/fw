@@ -192,6 +192,10 @@ export class ViewEngine {
   constructor(private container: Container) { }
 
   private getTemplateFor<T>(c: makerOf<T>): string {
+    if ((<any>c).__template != null && (typeof (<any>c).__template == "string")) {
+      return (<any>c).__template;
+    }
+
     for (let key in __webpack_require__.c) {
       if (!__webpack_require__.c[key].exports) continue;
       const exports = __webpack_require__.c[key].exports;

@@ -310,6 +310,9 @@ var ViewEngine = (function () {
     _createClass(ViewEngine, [{
         key: "getTemplateFor",
         value: function getTemplateFor(c) {
+            if (c.__template != null && typeof c.__template == "string") {
+                return c.__template;
+            }
             for (var key in __webpack_require__.c) {
                 if (!__webpack_require__.c[key].exports) continue;
                 var _exports2 = __webpack_require__.c[key].exports;

@@ -4,4 +4,4 @@ export { bootstrap, inject, needs, FrameworkConfig } from "./fw";
 export { Bus, Subscription } from "./bus";
 export { ViewEngine, View, prop, ComponentEventBus } from "./view-engine";
 export { Network, NetworkException, NVP } from "./network";
-export { kebab } from "./util";
+export { kebab, CloseStack } from "./util";

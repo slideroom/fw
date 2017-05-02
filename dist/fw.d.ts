@@ -17,6 +17,15 @@ declare module 'fw/container' {
 }
 declare module 'fw/util' {
 	export function kebab(name: string): string;
+	export class CloseStack {
+	    private theCloseStack;
+	    constructor();
+	    enroll(cb: () => void): {
+	        close: () => void;
+	        closeAbove: () => void;
+	    };
+	    private handleKeyPress(e);
+	}
 
 }
 declare module 'fw/view-engine' {
@@ -171,6 +180,6 @@ declare module 'fw' {
 	export { Bus, Subscription } from 'fw/bus';
 	export { ViewEngine, View, prop, ComponentEventBus } from 'fw/view-engine';
 	export { Network, NetworkException, NVP } from 'fw/network';
-	export { kebab } from 'fw/util';
+	export { kebab, CloseStack } from 'fw/util';
 
 }

@@ -256,7 +256,7 @@ var View = (function () {
             return new Promise(function (res, rej) {
                 var activateFn = vm["activate"];
                 if (typeof activateFn === "function") {
-                    var activateRes = activateFn.apply(vm, [_this2.activateParams]);
+                    var activateRes = activateFn.apply(_this2.r || vm, [_this2.activateParams]);
                     if (activateRes instanceof Promise) {
                         activateRes.then(res);
                     } else {

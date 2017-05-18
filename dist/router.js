@@ -42,7 +42,7 @@ var __awaiter = undefined && undefined.__awaiter || function (thisArg, _argument
                 resolve(result.value);
             }).then(fulfilled, rejected);
         }
-        step((generator = generator.apply(thisArg, _arguments)).next());
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
 _vue2["default"].component("router-view", {

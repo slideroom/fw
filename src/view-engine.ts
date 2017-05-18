@@ -149,7 +149,7 @@ export class View<T> {
     return new Promise((res, rej) => {
       const activateFn = vm["activate"];
       if (typeof activateFn === "function") {
-        const activateRes = activateFn.apply(vm, [this.activateParams]);
+        const activateRes = activateFn.apply(this.r || vm, [this.activateParams]);
         if (activateRes instanceof Promise) {
           activateRes.then(res);
         } else {

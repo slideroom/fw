@@ -291,11 +291,9 @@ var View = (function () {
     }, {
         key: "getRouterViewElement",
         value: function getRouterViewElement() {
-            var component = this.r.$children.find(function (c) {
-                return c.$el.className == "__router_view";
+            return this.r.$children.find(function (c) {
+                return c.$el.children && c.$el.children.length == 1 && c.$el.children[0].className == "__router_view";
             });
-            if (!component) return { node: null, component: null };
-            return { node: component.$el, component: component };
         }
     }, {
         key: "remove",
@@ -303,6 +301,9 @@ var View = (function () {
             var kill = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
 
             this.r.$destroy();
+            if (kill) {
+                this.r.$el.parentNode.removeChild(this.r.$el);
+            }
         }
     }]);
 

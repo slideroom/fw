@@ -7,7 +7,13 @@ import Vue from "vue";
 
 // we need a quick router-view component
 Vue.component("router-view", {
-  template: "<div class='__router_view'></div>",
+  render: function(h) {
+    return h('div', { pre: true }, [
+      h('div', { attrs: { "class": "__router_view" }}, [
+        h('div'),
+      ]),
+    ]);
+  }
 });
 
 
@@ -137,7 +143,7 @@ type LoadedView = {
   matchedOn: string[];
   queryParams: string;
   view: Function;
-  routerElement: any;
+  routerElement: () => any;
   router: RouteMatcher;
   routerElementComponent: Vue,
   viewInstance: View<any>;
@@ -184,7 +190,9 @@ export class ViewRouter {
         matchedOn: null,
         queryParams: null,
         router: starterView.router,
-        routerElement: starterView.routerElement,
+        routerElement: () => {
+          return starterView.routerElementComponent.$el.children[0].children[0];
+        },
         routerElementComponent: starterView.routerElementComponent,
         view: starterView.view,
         viewInstance: starterView.viewInstance,
@@ -225,7 +233,7 @@ export class ViewRouter {
 
     if (loadedView.routerElementComponent) {
       loadedView.routerElementComponent.$destroy();
-      loadedView.routerElement.innerHTML = "";
+      loadedView.routerElement().innerHTML = "";
     }
 
     this.loadedViewsStack.splice(viewStackIndex + 1);
@@ -273,13 +281,15 @@ export class ViewRouter {
       loadedView.router.current = match.route.name;
     }
 
-    const newElement = await this.runView(match.route.view, loadedView.routerElement, Object.assign({}, match.route.data, queryParams, match.params));
+    const newElement = await this.runView(match.route.view, loadedView.routerElement(), Object.assign({}, match.route.data, queryParams, match.params));
 
     this.loadedViewsStack.push({
       matchedOn: match.matchedOn,
       queryParams: JSON.stringify(match.remaining.length == 0 ? queryParams : {}),
       router: newElement.router,
-      routerElement: newElement.routerElement,
+      routerElement: () => {
+        return newElement.routerElementComponent.$el.children[0].children[0];
+      },
       routerElementComponent: newElement.routerElementComponent,
       view: match.route.view,
       viewInstance: newElement.viewInstance,
@@ -315,8 +325,8 @@ export class ViewRouter {
 
     await v.activate();
 
-    const { node: routerElement, component: routerElementComponent } = v.getRouterViewElement();
+    const routerElementComponent = v.getRouterViewElement();
 
-    return { view, routerElement, router, routerElementComponent, viewInstance: v };
+    return { view, router, routerElementComponent, viewInstance: v };
   }
 }

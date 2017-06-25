@@ -46,10 +46,7 @@ declare module 'fw/view-engine' {
 	    renderTo(element: HTMLElement): void;
 	    activate(): Promise<{}>;
 	    getRouterSetupFunction(): any;
-	    getRouterViewElement(): {
-	        node: any;
-	        component: any;
-	    };
+	    getRouterViewElement(): any;
 	    remove(kill?: boolean): void;
 	}
 	export class ViewEngine {

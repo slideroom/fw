@@ -46,7 +46,9 @@ var __awaiter = undefined && undefined.__awaiter || function (thisArg, _argument
     });
 };
 _vue2["default"].component("router-view", {
-    template: "<div class='__router_view'></div>"
+    render: function render(h) {
+        return h('div', { pre: true }, [h('div', { attrs: { "class": "__router_view" } }, [h('div')])]);
+    }
 });
 function arrayEqual(arr1, arr2) {
     if (arr1 == null && arr2 != null) return false;
@@ -243,7 +245,9 @@ var ViewRouter = (function () {
                                     matchedOn: null,
                                     queryParams: null,
                                     router: starterView.router,
-                                    routerElement: starterView.routerElement,
+                                    routerElement: function routerElement() {
+                                        return starterView.routerElementComponent.$el.children[0].children[0];
+                                    },
                                     routerElementComponent: starterView.routerElementComponent,
                                     view: starterView.view,
                                     viewInstance: starterView.viewInstance
@@ -286,12 +290,12 @@ var ViewRouter = (function () {
             // i need to go through all of the elements above the index and trigger an unrender
             this.loadedViewsStack.forEach(function (v, idx) {
                 if (idx > viewStackIndex && v.viewInstance) {
-                    v.viewInstance.remove(false);
+                    v.viewInstance.remove();
                 }
             });
             if (loadedView.routerElementComponent) {
                 loadedView.routerElementComponent.$destroy();
-                loadedView.routerElement.innerHTML = "";
+                loadedView.routerElement().innerHTML = "";
             }
             this.loadedViewsStack.splice(viewStackIndex + 1);
         }
@@ -370,7 +374,7 @@ var ViewRouter = (function () {
                                 loadedView.router.current = match.route.name;
                             }
                             context$3$0.next = 25;
-                            return this.runView(match.route.view, loadedView.routerElement, Object.assign({}, match.route.data, queryParams, match.params));
+                            return this.runView(match.route.view, loadedView.routerElement(), Object.assign({}, match.route.data, queryParams, match.params));
 
                         case 25:
                             newElement = context$3$0.sent;
@@ -379,7 +383,9 @@ var ViewRouter = (function () {
                                 matchedOn: match.matchedOn,
                                 queryParams: JSON.stringify(match.remaining.length == 0 ? queryParams : {}),
                                 router: newElement.router,
-                                routerElement: newElement.routerElement,
+                                routerElement: function routerElement() {
+                                    return newElement.routerElementComponent.$el.children[0].children[0];
+                                },
                                 routerElementComponent: newElement.routerElementComponent,
                                 view: match.route.view,
                                 viewInstance: newElement.viewInstance
@@ -401,8 +407,7 @@ var ViewRouter = (function () {
             var params = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
 
             return __awaiter(this, void 0, void 0, regeneratorRuntime.mark(function callee$2$0() {
-                var v, routerSetup, didRender, router, setupRes, _v$getRouterViewElement, routerElement, routerElementComponent;
-
+                var v, routerSetup, didRender, router, setupRes, routerElementComponent;
                 return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
                     while (1) switch (context$3$0.prev = context$3$0.next) {
                         case 0:
@@ -437,12 +442,10 @@ var ViewRouter = (function () {
                             return v.activate();
 
                         case 15:
-                            _v$getRouterViewElement = v.getRouterViewElement();
-                            routerElement = _v$getRouterViewElement.node;
-                            routerElementComponent = _v$getRouterViewElement.component;
-                            return context$3$0.abrupt("return", { view: view, routerElement: routerElement, router: router, routerElementComponent: routerElementComponent, viewInstance: v });
+                            routerElementComponent = v.getRouterViewElement();
+                            return context$3$0.abrupt("return", { view: view, router: router, routerElementComponent: routerElementComponent, viewInstance: v });
 
-                        case 19:
+                        case 17:
                         case "end":
                             return context$3$0.stop();
                     }

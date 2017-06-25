@@ -178,15 +178,15 @@ export class View<T> {
   }
 
   getRouterViewElement() {
-    const component = this.r.$children.find(c => c.$el.className == "__router_view");
-
-    if (!component) return { node: null, component: null };
-
-    return { node: component.$el, component };
+    return this.r.$children.find(c => c.$el.children && c.$el.children.length == 1 && c.$el.children[0].className == "__router_view");
   }
 
   remove(kill = true) {
     this.r.$destroy();
+
+    if (kill) {
+      this.r.$el.parentNode.removeChild(this.r.$el);
+    }
   }
 }
 

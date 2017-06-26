@@ -298,12 +298,7 @@ var View = (function () {
     }, {
         key: "remove",
         value: function remove() {
-            var kill = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
-
             this.r.$destroy();
-            if (kill) {
-                this.r.$el.parentNode.removeChild(this.r.$el);
-            }
         }
     }]);
 

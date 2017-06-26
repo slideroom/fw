@@ -181,12 +181,8 @@ export class View<T> {
     return this.r.$children.find(c => c.$el.children && c.$el.children.length == 1 && c.$el.children[0].className == "__router_view");
   }
 
-  remove(kill = true) {
+  remove() {
     this.r.$destroy();
-
-    if (kill) {
-      this.r.$el.parentNode.removeChild(this.r.$el);
-    }
   }
 }
 

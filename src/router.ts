@@ -227,7 +227,7 @@ export class ViewRouter {
     // i need to go through all of the elements above the index and trigger an unrender
     this.loadedViewsStack.forEach((v, idx) => {
       if (idx > viewStackIndex && v.viewInstance) {
-        v.viewInstance.remove(false);
+        v.viewInstance.remove();
       }
     });
 

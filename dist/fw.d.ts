@@ -47,7 +47,7 @@ declare module 'fw/view-engine' {
 	    activate(): Promise<{}>;
 	    getRouterSetupFunction(): any;
 	    getRouterViewElement(): any;
-	    remove(kill?: boolean): void;
+	    remove(): void;
 	}
 	export class ViewEngine {
 	    private container;

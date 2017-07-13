@@ -37,6 +37,25 @@ function getProps(cl) {
   return propObject;
 }
 
+const makeComputedObject = (instance: any) => {
+  const obj: any = {};
+  const proto = Object.getPrototypeOf(instance);
+
+  for (const property of Object.getOwnPropertyNames(proto)) {
+    const descriptor = Object.getOwnPropertyDescriptor(proto, property);
+    if (descriptor.get != null && descriptor.set != null) {
+      obj[property] = {
+        get: descriptor.get,
+        set: descriptor.set,
+      };
+    } else if (descriptor.get != null) {
+      obj[property] = descriptor.get;
+    }
+  }
+
+  return obj;
+};
+
 class Component<T> {
   constructor(private container: Container, private viewModel: makerOf<T>, private template: string) { }
 
@@ -48,10 +67,15 @@ class Component<T> {
     return Vue.extend({
       template: this.template,
       data: function() {
-        return that.container.get(that.viewModel, false, (o) => {
+        const instance = that.container.get(that.viewModel, false, (o) => {
           o.use(ComponentEventBus, new ComponentEventBus(this));
         });
+
+        this.$options.computed = makeComputedObject(instance);
+
+        return instance;
       },
+      computed: {},
       props: props,
       created: function() {
         // setup the methods
@@ -120,6 +144,7 @@ export class View<T> {
       el: element,
       template: this.template,
       data: vm,
+      computed: makeComputedObject(vm),
       created: function() {
         // setup the methods
         (this as any).methods = {};

@@ -1,9 +1,11 @@
 import { kebab } from "./util";
-import { makerOf, ContainerInstance } from "./container";
+import { ContainerInstance, makerOf } from "./container";
 import { ViewEngine, View } from "./view-engine";
 import { Bus } from "./bus";
 
 import Vue from "vue";
+
+export type viewMaker<T> = makerOf<T> | { (): Promise<makerOf<T>> } | { (): Promise<{ default: makerOf<T> }> };
 
 // we need a quick router-view component
 Vue.component("router-view", {
@@ -15,7 +17,6 @@ Vue.component("router-view", {
     ]);
   }
 });
-
 
 function arrayEqual(arr1: string[], arr2: string[]): boolean {
   if (arr1 == null && arr2 != null) return false;
@@ -48,8 +49,9 @@ export interface RouterMiddlware {
   navigating(route: Route, fullRoute: string): boolean;
 }
 
+
 export interface RouterConfig {
-  add(route: string, view: makerOf<any>, data?: any, name?: string): void;
+  add(route: string, view: viewMaker<any>, data?: any, name?: string): void;
   addMiddleware(middleware: makerOf<RouterMiddlware>): void;
 
   current: string;
@@ -61,7 +63,7 @@ export class RouteMatcher {
 
   public current = "";
 
-  public add(route: string, view: makerOf<any>, data = null, name = null) {
+  public add(route: string, view: viewMaker<any>, data = null, name = null) {
     this.routes.push(new Route(route.split("/"), view, data));
   }
 
@@ -102,9 +104,7 @@ export class RouteMatcher {
 const NoMatch = { match: false, remaining: [], matchedOn: [] };
 
 export class Route {
-  constructor(private route: string[], public view: makerOf<any>, public data = null, public name: string = null) {
-    this.name = this.name || kebab(view.name);
-  }
+  constructor(private route: string[], public view: viewMaker<any>, public data = null, public name: string = null) {}
 
   public match(locations: string[]): { match: boolean, remaining: string[]; matchedOn: string[] } {
     let matchUpTo = 0;
@@ -136,6 +136,27 @@ export class Route {
     }
 
     return params;
+  }
+
+  public async loadView(): Promise<makerOf<any>> {
+    if ((this.view as any).__template) {
+      this.name = this.name || kebab(this.view.name);
+
+      return this.view as any;
+    } else {
+      // maybe it is a promise?
+      let res = (this.view as any)();
+
+      if (res instanceof Promise) {
+        res = await res;
+      }
+
+      if (res.__esModule && res.default && res.default.__template) res = res.default;
+
+      this.name = this.name || kebab(res.name);
+
+      return res;
+    }
   }
 }
 
@@ -277,11 +298,13 @@ export class ViewRouter {
 
     this.clearFrom(viewStackIndex);
 
+    const view = await match.route.loadView();
+
     if (loadedView.router) {
       loadedView.router.current = match.route.name;
     }
 
-    const newElement = await this.runView(match.route.view, loadedView.routerElement(), Object.assign({}, match.route.data, queryParams, match.params));
+    const newElement = await this.runView(view, loadedView.routerElement(), Object.assign({}, match.route.data, queryParams, match.params));
 
     this.loadedViewsStack.push({
       matchedOn: match.matchedOn,

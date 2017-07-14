@@ -139,7 +139,6 @@ var Route = (function () {
         this.view = view;
         this.data = data;
         this.name = name;
-        this.name = this.name || (0, _util.kebab)(view.name);
     }
 
     _createClass(Route, [{
@@ -170,6 +169,48 @@ var Route = (function () {
                 }
             }
             return params;
+        }
+    }, {
+        key: "loadView",
+        value: function loadView() {
+            return __awaiter(this, void 0, void 0, regeneratorRuntime.mark(function callee$2$0() {
+                var res;
+                return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
+                    while (1) switch (context$3$0.prev = context$3$0.next) {
+                        case 0:
+                            if (!this.view.__template) {
+                                context$3$0.next = 5;
+                                break;
+                            }
+
+                            this.name = this.name || (0, _util.kebab)(this.view.name);
+                            return context$3$0.abrupt("return", this.view);
+
+                        case 5:
+                            res = this.view();
+
+                            if (!(res instanceof Promise)) {
+                                context$3$0.next = 10;
+                                break;
+                            }
+
+                            context$3$0.next = 9;
+                            return res;
+
+                        case 9:
+                            res = context$3$0.sent;
+
+                        case 10:
+                            if (res.__esModule && res["default"] && res["default"].__template) res = res["default"];
+                            this.name = this.name || (0, _util.kebab)(res.name);
+                            return context$3$0.abrupt("return", res);
+
+                        case 13:
+                        case "end":
+                            return context$3$0.stop();
+                    }
+                }, callee$2$0, this);
+            }));
         }
     }]);
 
@@ -303,7 +344,7 @@ var ViewRouter = (function () {
         key: "runMatching",
         value: function runMatching(location, fullLocation, queryParams, loadedView, viewStackIndex) {
             return __awaiter(this, void 0, void 0, regeneratorRuntime.mark(function callee$2$0() {
-                var match, hasMoreInStack, nextLView, matchQueryParams, _idx, newElement, idx;
+                var match, hasMoreInStack, nextLView, matchQueryParams, _idx, view, newElement, idx;
 
                 return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
                     while (1) switch (context$3$0.prev = context$3$0.next) {
@@ -370,13 +411,19 @@ var ViewRouter = (function () {
 
                         case 21:
                             this.clearFrom(viewStackIndex);
+                            context$3$0.next = 24;
+                            return match.route.loadView();
+
+                        case 24:
+                            view = context$3$0.sent;
+
                             if (loadedView.router) {
                                 loadedView.router.current = match.route.name;
                             }
-                            context$3$0.next = 25;
-                            return this.runView(match.route.view, loadedView.routerElement(), Object.assign({}, match.route.data, queryParams, match.params));
+                            context$3$0.next = 28;
+                            return this.runView(view, loadedView.routerElement(), Object.assign({}, match.route.data, queryParams, match.params));
 
-                        case 25:
+                        case 28:
                             newElement = context$3$0.sent;
 
                             this.loadedViewsStack.push({
@@ -391,10 +438,10 @@ var ViewRouter = (function () {
                                 viewInstance: newElement.viewInstance
                             });
                             idx = viewStackIndex + 1;
-                            context$3$0.next = 30;
+                            context$3$0.next = 33;
                             return this.runMatching(match.remaining, fullLocation, queryParams, this.loadedViewsStack[idx], idx);
 
-                        case 30:
+                        case 33:
                         case "end":
                             return context$3$0.stop();
                     }
@@ -458,6 +505,8 @@ var ViewRouter = (function () {
 })();
 
 exports.ViewRouter = ViewRouter;
+
+// maybe it is a promise?
 
 // check to see if there is a root/empty route before we give up
 

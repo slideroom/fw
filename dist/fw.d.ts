@@ -75,11 +75,18 @@ declare module 'fw/bus' {
 declare module 'fw/router' {
 	import { makerOf } from 'fw/container';
 	import { ViewEngine } from 'fw/view-engine';
+	export type viewMaker<T> = makerOf<T> | {
+	    (): Promise<makerOf<T>>;
+	} | {
+	    (): Promise<{
+	        default: makerOf<T>;
+	    }>;
+	};
 	export interface RouterMiddlware {
 	    navigating(route: Route, fullRoute: string): boolean;
 	}
 	export interface RouterConfig {
-	    add(route: string, view: makerOf<any>, data?: any, name?: string): void;
+	    add(route: string, view: viewMaker<any>, data?: any, name?: string): void;
 	    addMiddleware(middleware: makerOf<RouterMiddlware>): void;
 	    current: string;
 	}
@@ -87,7 +94,7 @@ declare module 'fw/router' {
 	    private routes;
 	    private middleware;
 	    current: string;
-	    add(route: string, view: makerOf<any>, data?: any, name?: any): void;
+	    add(route: string, view: viewMaker<any>, data?: any, name?: any): void;
 	    addMiddleware(middleware: makerOf<RouterMiddlware>): void;
 	    matches(locations: string[]): {
 	        matches: boolean;
@@ -100,10 +107,10 @@ declare module 'fw/router' {
 	}
 	export class Route {
 	    private route;
-	    view: makerOf<any>;
+	    view: viewMaker<any>;
 	    data: any;
 	    name: string;
-	    constructor(route: string[], view: makerOf<any>, data?: any, name?: string);
+	    constructor(route: string[], view: viewMaker<any>, data?: any, name?: string);
 	    match(locations: string[]): {
 	        match: boolean;
 	        remaining: string[];
@@ -112,6 +119,7 @@ declare module 'fw/router' {
 	    getParams(locations: string[]): {
 	        [key: string]: string;
 	    };
+	    loadView(): Promise<makerOf<any>>;
 	}
 	export class Navigator {
 	    constructor();

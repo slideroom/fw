@@ -5,17 +5,18 @@ import { Bus } from "./bus";
 
 import Vue from "vue";
 
-export type viewMaker<T> = makerOf<T> | { (): Promise<makerOf<T>> } | { (): Promise<{ default: makerOf<T> }> };
+export type viewMaker<T> =
+  | makerOf<T>
+  | { (): Promise<makerOf<T>> }
+  | { (): Promise<{ default: makerOf<T> }> };
 
 // we need a quick router-view component
 Vue.component("router-view", {
   render: function(h) {
-    return h('div', { pre: true }, [
-      h('div', { attrs: { "class": "__router_view" }}, [
-        h('div'),
-      ]),
+    return h("div", { pre: true }, [
+      h("div", { attrs: { class: "__router_view" } }, [h("div")]),
     ]);
-  }
+  },
 });
 
 function arrayEqual(arr1: string[], arr2: string[]): boolean {
@@ -30,7 +31,9 @@ function arrayEqual(arr1: string[], arr2: string[]): boolean {
   return true;
 }
 
-function parseQueryParams(str: string): { withoutQueryParams: string, params: any } {
+function parseQueryParams(
+  str: string,
+): { withoutQueryParams: string; params: any } {
   if (str.indexOf("?") == -1) return { withoutQueryParams: str, params: {} };
 
   const strSplit = str.split("?");
@@ -48,7 +51,6 @@ function parseQueryParams(str: string): { withoutQueryParams: string, params: an
 export interface RouterMiddlware {
   navigating(route: Route, fullRoute: string): boolean;
 }
-
 
 export interface RouterConfig {
   add(route: string, view: viewMaker<any>, data?: any, name?: string): void;
@@ -71,7 +73,15 @@ export class RouteMatcher {
     this.middleware.push(middleware);
   }
 
-  public matches(locations: string[]): { matches: boolean, remaining: string[], params: any, route: Route, matchedOn: string[] } {
+  public matches(
+    locations: string[],
+  ): {
+    matches: boolean;
+    remaining: string[];
+    params: any;
+    route: Route;
+    matchedOn: string[];
+  } {
     for (let i = 0; i < this.routes.length; i++) {
       const m = this.routes[i].match(locations);
 
@@ -79,7 +89,13 @@ export class RouteMatcher {
         const params = this.routes[i].getParams(locations);
         const { remaining, matchedOn } = m;
 
-        return { matches: true, remaining, params, route: this.routes[i], matchedOn };
+        return {
+          matches: true,
+          remaining,
+          params,
+          route: this.routes[i],
+          matchedOn,
+        };
       }
     }
 
@@ -87,9 +103,7 @@ export class RouteMatcher {
   }
 
   public canNavigate(route: Route, fullRoute: string) {
-    if (this.middleware.length == 0)
-      return true;
-
+    if (this.middleware.length == 0) return true;
 
     for (let i = 0; i < this.middleware.length; i++) {
       const mw = ContainerInstance.get(this.middleware[i], false);
@@ -104,9 +118,16 @@ export class RouteMatcher {
 const NoMatch = { match: false, remaining: [], matchedOn: [] };
 
 export class Route {
-  constructor(private route: string[], public view: viewMaker<any>, public data = null, public name: string = null) {}
+  constructor(
+    private route: string[],
+    public view: viewMaker<any>,
+    public data = null,
+    public name: string = null,
+  ) {}
 
-  public match(locations: string[]): { match: boolean, remaining: string[]; matchedOn: string[] } {
+  public match(
+    locations: string[],
+  ): { match: boolean; remaining: string[]; matchedOn: string[] } {
     let matchUpTo = 0;
 
     if (this.route.length > locations.length) return NoMatch;
@@ -118,7 +139,8 @@ export class Route {
         continue;
       }
 
-      if (this.route[i].toLowerCase() != locations[i].toLowerCase()) return NoMatch;
+      if (this.route[i].toLowerCase() != locations[i].toLowerCase())
+        return NoMatch;
     }
 
     const remaining = locations.slice(matchUpTo);
@@ -151,7 +173,7 @@ export class Route {
         res = await res;
       }
 
-      if (res.__esModule && res.default && res.default.__template) res = res.default;
+      if (res.default && res.default.__template) res = res.default;
 
       this.name = this.name || kebab(res.name);
 
@@ -166,12 +188,12 @@ type LoadedView = {
   view: Function;
   routerElement: () => any;
   router: RouteMatcher;
-  routerElementComponent: Vue,
+  routerElementComponent: Vue;
   viewInstance: View<any>;
 };
 
 export class Navigator {
-  constructor() { }
+  constructor() {}
 
   public navigate(where: string, queryParams = null) {
     let paramsStr = "";
@@ -180,7 +202,9 @@ export class Navigator {
 
       let params = [];
       for (let key in queryParams) {
-        params.push(`${encodeURIComponent(key)}=${encodeURIComponent(queryParams[key])}`);
+        params.push(
+          `${encodeURIComponent(key)}=${encodeURIComponent(queryParams[key])}`,
+        );
       }
 
       paramsStr += params.join("&");
@@ -193,18 +217,21 @@ export class Navigator {
 const bus = ContainerInstance.get(Bus);
 
 export class ViewRouterLocationChanged {
-  constructor(public location: string) { }
+  constructor(public location: string) {}
 }
 
 export class ViewRouter {
   private loadedViewsStack: LoadedView[] = [];
 
   constructor(private viewEngine: ViewEngine, private starter: makerOf<any>) {
-    window.addEventListener('popstate', this.changed.bind(this));
+    window.addEventListener("popstate", this.changed.bind(this));
   }
 
   public async start() {
-    const starterView = await this.runView(this.starter, document.getElementById("root"));
+    const starterView = await this.runView(
+      this.starter,
+      document.getElementById("root"),
+    );
 
     if (starterView.router) {
       this.loadedViewsStack.push({
@@ -236,7 +263,13 @@ export class ViewRouter {
     // kick it off and see what happens
     if (this.loadedViewsStack.length > 0) {
       window.scrollTo(0, 0);
-      this.runMatching(location, fullLocation, params, this.loadedViewsStack[0], 0);
+      this.runMatching(
+        location,
+        fullLocation,
+        params,
+        this.loadedViewsStack[0],
+        0,
+      );
     }
   }
 
@@ -260,7 +293,13 @@ export class ViewRouter {
     this.loadedViewsStack.splice(viewStackIndex + 1);
   }
 
-  private async runMatching(location: string[], fullLocation: string, queryParams: any, loadedView: LoadedView, viewStackIndex: number) {
+  private async runMatching(
+    location: string[],
+    fullLocation: string,
+    queryParams: any,
+    loadedView: LoadedView,
+    viewStackIndex: number,
+  ) {
     if (loadedView.router == null) return;
 
     let match = loadedView.router.matches(location);
@@ -287,11 +326,22 @@ export class ViewRouter {
     const hasMoreInStack = this.loadedViewsStack.length > viewStackIndex + 1;
     if (hasMoreInStack) {
       const nextLView = this.loadedViewsStack[viewStackIndex + 1];
-      const matchQueryParams = JSON.stringify(this.loadedViewsStack.length <= viewStackIndex + 2 ? queryParams : {});
+      const matchQueryParams = JSON.stringify(
+        this.loadedViewsStack.length <= viewStackIndex + 2 ? queryParams : {},
+      );
 
-      if (arrayEqual(nextLView.matchedOn, match.matchedOn) && nextLView.queryParams == matchQueryParams) {
+      if (
+        arrayEqual(nextLView.matchedOn, match.matchedOn) &&
+        nextLView.queryParams == matchQueryParams
+      ) {
         const idx = viewStackIndex + 1;
-        await this.runMatching(match.remaining, fullLocation, queryParams, this.loadedViewsStack[idx], idx);
+        await this.runMatching(
+          match.remaining,
+          fullLocation,
+          queryParams,
+          this.loadedViewsStack[idx],
+          idx,
+        );
         return;
       }
     }
@@ -304,11 +354,17 @@ export class ViewRouter {
       loadedView.router.current = match.route.name;
     }
 
-    const newElement = await this.runView(view, loadedView.routerElement(), Object.assign({}, match.route.data, queryParams, match.params));
+    const newElement = await this.runView(
+      view,
+      loadedView.routerElement(),
+      Object.assign({}, match.route.data, queryParams, match.params),
+    );
 
     this.loadedViewsStack.push({
       matchedOn: match.matchedOn,
-      queryParams: JSON.stringify(match.remaining.length == 0 ? queryParams : {}),
+      queryParams: JSON.stringify(
+        match.remaining.length == 0 ? queryParams : {},
+      ),
       router: newElement.router,
       routerElement: () => {
         return newElement.routerElementComponent.$el.children[0].children[0];
@@ -319,7 +375,13 @@ export class ViewRouter {
     });
 
     const idx = viewStackIndex + 1;
-    await this.runMatching(match.remaining, fullLocation, queryParams, this.loadedViewsStack[idx], idx);
+    await this.runMatching(
+      match.remaining,
+      fullLocation,
+      queryParams,
+      this.loadedViewsStack[idx],
+      idx,
+    );
   }
 
   private async runView(view: makerOf<any>, where: any, params: any = null) {
@@ -343,8 +405,7 @@ export class ViewRouter {
       }
     }
 
-    if (!didRender)
-      v.renderTo(where);
+    if (!didRender) v.renderTo(where);
 
     await v.activate();
 

@@ -47,7 +47,7 @@ var __awaiter = undefined && undefined.__awaiter || function (thisArg, _argument
 };
 _vue2["default"].component("router-view", {
     render: function render(h) {
-        return h('div', { pre: true }, [h('div', { attrs: { "class": "__router_view" } }, [h('div')])]);
+        return h("div", { pre: true }, [h("div", { attrs: { "class": "__router_view" } }, [h("div")])]);
     }
 });
 function arrayEqual(arr1, arr2) {
@@ -103,7 +103,13 @@ var RouteMatcher = (function () {
                     var remaining = m.remaining;
                     var matchedOn = m.matchedOn;
 
-                    return { matches: true, remaining: remaining, params: params, route: this.routes[i], matchedOn: matchedOn };
+                    return {
+                        matches: true,
+                        remaining: remaining,
+                        params: params,
+                        route: this.routes[i],
+                        matchedOn: matchedOn
+                    };
                 }
             }
             return null;
@@ -201,7 +207,7 @@ var Route = (function () {
                             res = context$3$0.sent;
 
                         case 10:
-                            if (res.__esModule && res["default"] && res["default"].__template) res = res["default"];
+                            if (res["default"] && res["default"].__template) res = res["default"];
                             this.name = this.name || (0, _util.kebab)(res.name);
                             return context$3$0.abrupt("return", res);
 
@@ -264,7 +270,7 @@ var ViewRouter = (function () {
         this.viewEngine = viewEngine;
         this.starter = starter;
         this.loadedViewsStack = [];
-        window.addEventListener('popstate', this.changed.bind(this));
+        window.addEventListener("popstate", this.changed.bind(this));
     }
 
     _createClass(ViewRouter, [{

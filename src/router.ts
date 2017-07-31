@@ -57,6 +57,7 @@ export interface RouterConfig {
   addMiddleware(middleware: makerOf<RouterMiddlware>): void;
 
   current: string;
+  fullLocation: string;
 }
 
 export class RouteMatcher {
@@ -64,6 +65,7 @@ export class RouteMatcher {
   private middleware: makerOf<RouterMiddlware>[] = [];
 
   public current = "";
+  public fullLocation = "";
 
   public add(route: string, view: viewMaker<any>, data = null, name = null) {
     this.routes.push(new Route(route.split("/"), view, data));
@@ -260,9 +262,15 @@ export class ViewRouter {
     const { withoutQueryParams, params } = parseQueryParams(fullLocation);
     const location = withoutQueryParams.split("/");
 
+
     // kick it off and see what happens
     if (this.loadedViewsStack.length > 0) {
       window.scrollTo(0, 0);
+
+      this.loadedViewsStack.forEach(lv => {
+        if (lv.router != null) lv.router.fullLocation = fullLocation;
+      });
+
       this.runMatching(
         location,
         fullLocation,

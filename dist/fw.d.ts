@@ -89,11 +89,13 @@ declare module 'fw/router' {
 	    add(route: string, view: viewMaker<any>, data?: any, name?: string): void;
 	    addMiddleware(middleware: makerOf<RouterMiddlware>): void;
 	    current: string;
+	    fullLocation: string;
 	}
 	export class RouteMatcher {
 	    private routes;
 	    private middleware;
 	    current: string;
+	    fullLocation: string;
 	    add(route: string, view: viewMaker<any>, data?: any, name?: any): void;
 	    addMiddleware(middleware: makerOf<RouterMiddlware>): void;
 	    matches(locations: string[]): {

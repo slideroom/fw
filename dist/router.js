@@ -78,6 +78,7 @@ var RouteMatcher = (function () {
         this.routes = [];
         this.middleware = [];
         this.current = "";
+        this.fullLocation = "";
     }
 
     _createClass(RouteMatcher, [{
@@ -326,6 +327,9 @@ var ViewRouter = (function () {
             // kick it off and see what happens
             if (this.loadedViewsStack.length > 0) {
                 window.scrollTo(0, 0);
+                this.loadedViewsStack.forEach(function (lv) {
+                    if (lv.router != null) lv.router.fullLocation = fullLocation;
+                });
                 this.runMatching(location, fullLocation, params, this.loadedViewsStack[0], 0);
             }
         }

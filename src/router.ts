@@ -309,6 +309,7 @@ export class ViewRouter {
     viewStackIndex: number,
   ) {
     if (loadedView.router == null) return;
+    loadedView.router.fullLocation = fullLocation;
 
     let match = loadedView.router.matches(location);
 
@@ -360,6 +361,7 @@ export class ViewRouter {
 
     if (loadedView.router) {
       loadedView.router.current = match.route.name;
+      loadedView.router.fullLocation = fullLocation;
     }
 
     const newElement = await this.runView(

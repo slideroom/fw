@@ -367,40 +367,41 @@ var ViewRouter = (function () {
                             return context$3$0.abrupt("return");
 
                         case 2:
+                            loadedView.router.fullLocation = fullLocation;
                             match = loadedView.router.matches(location);
 
                             if (!(match == null || match.matches == false)) {
-                                context$3$0.next = 10;
+                                context$3$0.next = 11;
                                 break;
                             }
 
                             if (!(location.length == 0 && loadedView.router.matches([""]))) {
-                                context$3$0.next = 8;
+                                context$3$0.next = 9;
                                 break;
                             }
 
                             match = loadedView.router.matches([""]);
-                            context$3$0.next = 10;
+                            context$3$0.next = 11;
                             break;
 
-                        case 8:
+                        case 9:
                             // lets clear the routerView if we need too
                             this.clearFrom(viewStackIndex);
                             return context$3$0.abrupt("return");
 
-                        case 10:
+                        case 11:
                             if (!(loadedView.router.canNavigate(match.route, fullLocation) == false)) {
-                                context$3$0.next = 12;
+                                context$3$0.next = 13;
                                 break;
                             }
 
                             return context$3$0.abrupt("return");
 
-                        case 12:
+                        case 13:
                             hasMoreInStack = this.loadedViewsStack.length > viewStackIndex + 1;
 
                             if (!hasMoreInStack) {
-                                context$3$0.next = 21;
+                                context$3$0.next = 22;
                                 break;
                             }
 
@@ -408,32 +409,33 @@ var ViewRouter = (function () {
                             matchQueryParams = JSON.stringify(this.loadedViewsStack.length <= viewStackIndex + 2 ? queryParams : {});
 
                             if (!(arrayEqual(nextLView.matchedOn, match.matchedOn) && nextLView.queryParams == matchQueryParams)) {
-                                context$3$0.next = 21;
+                                context$3$0.next = 22;
                                 break;
                             }
 
                             _idx = viewStackIndex + 1;
-                            context$3$0.next = 20;
+                            context$3$0.next = 21;
                             return this.runMatching(match.remaining, fullLocation, queryParams, this.loadedViewsStack[_idx], _idx);
 
-                        case 20:
+                        case 21:
                             return context$3$0.abrupt("return");
 
-                        case 21:
+                        case 22:
                             this.clearFrom(viewStackIndex);
-                            context$3$0.next = 24;
+                            context$3$0.next = 25;
                             return match.route.loadView();
 
-                        case 24:
+                        case 25:
                             view = context$3$0.sent;
 
                             if (loadedView.router) {
                                 loadedView.router.current = match.route.name;
+                                loadedView.router.fullLocation = fullLocation;
                             }
-                            context$3$0.next = 28;
+                            context$3$0.next = 29;
                             return this.runView(view, loadedView.routerElement(), Object.assign({}, match.route.data, queryParams, match.params));
 
-                        case 28:
+                        case 29:
                             newElement = context$3$0.sent;
 
                             this.loadedViewsStack.push({
@@ -448,10 +450,10 @@ var ViewRouter = (function () {
                                 viewInstance: newElement.viewInstance
                             });
                             idx = viewStackIndex + 1;
-                            context$3$0.next = 33;
+                            context$3$0.next = 34;
                             return this.runMatching(match.remaining, fullLocation, queryParams, this.loadedViewsStack[idx], idx);
 
-                        case 33:
+                        case 34:
                         case "end":
                             return context$3$0.stop();
                     }

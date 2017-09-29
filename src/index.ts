@@ -3,5 +3,5 @@ export { Navigator, RouterConfig, Route, ViewRouterLocationChanged } from "./rou
 export { bootstrap, inject, needs, FrameworkConfig } from "./fw";
 export { Bus, Subscription } from "./bus";
 export { ViewEngine, View, prop, ComponentEventBus } from "./view-engine";
-export { Network, NetworkException, NVP } from "./network";
+export { Network, NetworkException, NVP, NetworkMiddleware, NetworkRequestMiddleware, NetworkResponseMiddleware, RequestContext, ResponseContext } from "./network";
 export { kebab, CloseStack } from "./util";

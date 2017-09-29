@@ -145,6 +145,7 @@ declare module 'fw/router' {
 
 }
 declare module 'fw/network' {
+	import { makerOf } from 'fw/container';
 	export type NVP = {
 	    [name: string]: string;
 	};
@@ -154,13 +155,30 @@ declare module 'fw/network' {
 	    url: string;
 	    constructor(statusCode: number, result: T, url: string);
 	}
+	export interface ResponseContext {
+	    headers: NVP;
+	    statusCode: number;
+	    data: any;
+	}
+	export interface NetworkResponseMiddleware {
+	    onResponse(context: ResponseContext): any;
+	}
+	export interface RequestContext {
+	    addHeader(name: string, value: string): any;
+	}
+	export interface NetworkRequestMiddleware {
+	    onRequest(context: RequestContext): any;
+	}
+	export type NetworkMiddleware = NetworkRequestMiddleware | NetworkResponseMiddleware;
 	export class Network {
-	    private doRequest<T>(method, url, params, headers, content?);
+	    private middleware;
+	    addMiddleware(m: makerOf<NetworkMiddleware>): void;
+	    private doRequest<T>(method, url, params, content?);
 	    private buildParamString(params);
-	    post<T>(url: string, headers: NVP, content: any, params?: NVP): Promise<T>;
-	    put<T>(url: string, headers: NVP, content: any, params?: NVP): Promise<T>;
-	    get<T>(url: string, headers?: NVP, params?: NVP): Promise<T>;
-	    delete<T>(url: string, headers?: NVP, params?: NVP): Promise<T>;
+	    post<T>(url: string, content: any, params?: NVP): Promise<T>;
+	    put<T>(url: string, content: any, params?: NVP): Promise<T>;
+	    get<T>(url: string, params?: NVP): Promise<T>;
+	    delete<T>(url: string, params?: NVP): Promise<T>;
 	}
 
 }
@@ -186,7 +204,7 @@ declare module 'fw' {
 	export { bootstrap, inject, needs, FrameworkConfig } from 'fw/fw';
 	export { Bus, Subscription } from 'fw/bus';
 	export { ViewEngine, View, prop, ComponentEventBus } from 'fw/view-engine';
-	export { Network, NetworkException, NVP } from 'fw/network';
+	export { Network, NetworkException, NVP, NetworkMiddleware, NetworkRequestMiddleware, NetworkResponseMiddleware, RequestContext, ResponseContext } from 'fw/network';
 	export { kebab, CloseStack } from 'fw/util';
 
 }

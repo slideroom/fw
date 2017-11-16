@@ -3,16 +3,13 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.FrameworkConfig = undefined;
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 exports.inject = inject;
 exports.needs = needs;
 exports.bootstrap = bootstrap;
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var _container = require("./container");
 
@@ -27,6 +24,10 @@ var _network = require("./network");
 var _vue = require("vue");
 
 var _vue2 = _interopRequireDefault(_vue);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var __awaiter = undefined && undefined.__awaiter || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -52,11 +53,9 @@ var __awaiter = undefined && undefined.__awaiter || function (thisArg, _argument
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-
 function inject(target) {
     return;
 }
-
 function needs() {
     for (var _len = arguments.length, things = Array(_len), _key = 0; _key < _len; _key++) {
         things[_key] = arguments[_key];
@@ -66,10 +65,9 @@ function needs() {
         Reflect.set(target, "components", things);
     };
 }
-
 var viewEngine = new _viewEngine.ViewEngine(_container.ContainerInstance);
 
-var FrameworkConfig = (function () {
+var FrameworkConfig = exports.FrameworkConfig = function () {
     function FrameworkConfig() {
         _classCallCheck(this, FrameworkConfig);
 
@@ -100,107 +98,68 @@ var FrameworkConfig = (function () {
     }, {
         key: "withConfig",
         value: function withConfig(configType, fileName) {
-            return __awaiter(this, void 0, void 0, regeneratorRuntime.mark(function callee$2$0() {
-                var n, res, configInstance, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, prop;
+            return __awaiter(this, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
+                var n, res, configInstance;
+                return regeneratorRuntime.wrap(function _callee$(_context) {
+                    while (1) {
+                        switch (_context.prev = _context.next) {
+                            case 0:
+                                n = _container.ContainerInstance.get(_network.Network);
+                                _context.next = 3;
+                                return n.get(fileName);
 
-                return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
-                    while (1) switch (context$3$0.prev = context$3$0.next) {
-                        case 0:
-                            n = _container.ContainerInstance.get(_network.Network);
-                            context$3$0.next = 3;
-                            return n.get(fileName);
+                            case 3:
+                                res = _context.sent;
+                                configInstance = _container.ContainerInstance.get(configType);
 
-                        case 3:
-                            res = context$3$0.sent;
-                            configInstance = _container.ContainerInstance.get(configType);
-                            _iteratorNormalCompletion = true;
-                            _didIteratorError = false;
-                            _iteratorError = undefined;
-                            context$3$0.prev = 8;
+                                Object.keys(res).forEach(function (key) {
+                                    configInstance[key] = res[key];
+                                });
+                                return _context.abrupt("return", configInstance);
 
-                            for (_iterator = Object.keys(res)[Symbol.iterator](); !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                                prop = _step.value;
-
-                                configInstance[prop] = res[prop];
-                            }
-                            context$3$0.next = 16;
-                            break;
-
-                        case 12:
-                            context$3$0.prev = 12;
-                            context$3$0.t0 = context$3$0["catch"](8);
-                            _didIteratorError = true;
-                            _iteratorError = context$3$0.t0;
-
-                        case 16:
-                            context$3$0.prev = 16;
-                            context$3$0.prev = 17;
-
-                            if (!_iteratorNormalCompletion && _iterator["return"]) {
-                                _iterator["return"]();
-                            }
-
-                        case 19:
-                            context$3$0.prev = 19;
-
-                            if (!_didIteratorError) {
-                                context$3$0.next = 22;
-                                break;
-                            }
-
-                            throw _iteratorError;
-
-                        case 22:
-                            return context$3$0.finish(19);
-
-                        case 23:
-                            return context$3$0.finish(16);
-
-                        case 24:
-                            return context$3$0.abrupt("return", configInstance);
-
-                        case 25:
-                        case "end":
-                            return context$3$0.stop();
+                            case 7:
+                            case "end":
+                                return _context.stop();
+                        }
                     }
-                }, callee$2$0, this, [[8, 12, 16, 24], [17,, 19, 23]]);
+                }, _callee, this);
             }));
         }
     }, {
         key: "useVuePlugin",
         value: function useVuePlugin(plugin) {
-            _vue2["default"].use(plugin);
+            _vue2.default.use(plugin);
         }
     }]);
 
     return FrameworkConfig;
-})();
-
-exports.FrameworkConfig = FrameworkConfig;
+}();
 
 function bootstrap(cb) {
-    return __awaiter(this, void 0, void 0, regeneratorRuntime.mark(function callee$1$0() {
+    return __awaiter(this, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
         var fwConfig, bus, viewRouter;
-        return regeneratorRuntime.wrap(function callee$1$0$(context$2$0) {
-            while (1) switch (context$2$0.prev = context$2$0.next) {
-                case 0:
-                    fwConfig = new FrameworkConfig();
-                    bus = _container.ContainerInstance.get(_bus.Bus);
-                    context$2$0.next = 4;
-                    return cb(fwConfig);
+        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+            while (1) {
+                switch (_context2.prev = _context2.next) {
+                    case 0:
+                        fwConfig = new FrameworkConfig();
+                        bus = _container.ContainerInstance.get(_bus.Bus);
+                        _context2.next = 4;
+                        return cb(fwConfig);
 
-                case 4:
-                    if (fwConfig.starter != null) {
-                        viewRouter = new _router.ViewRouter(viewEngine, fwConfig.starter);
+                    case 4:
+                        if (fwConfig.starter != null) {
+                            viewRouter = new _router.ViewRouter(viewEngine, fwConfig.starter);
 
-                        _container.ContainerInstance.use(_router.Navigator, new _router.Navigator());
-                        viewRouter.start();
-                    }
+                            _container.ContainerInstance.use(_router.Navigator, new _router.Navigator());
+                            viewRouter.start();
+                        }
 
-                case 5:
-                case "end":
-                    return context$2$0.stop();
+                    case 5:
+                    case "end":
+                        return _context2.stop();
+                }
             }
-        }, callee$1$0, this);
+        }, _callee2, this);
     }));
 }

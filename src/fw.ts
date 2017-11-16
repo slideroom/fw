@@ -37,9 +37,9 @@ export class FrameworkConfig {
 
     const configInstance = ContainerInstance.get(configType);
 
-    for (let prop of Object.keys(res)) {
-      configInstance[prop] = res[prop];
-    }
+    Object.keys(res).forEach(key => {
+      configInstance[key] = res[key];
+    });
 
     return configInstance;
   }

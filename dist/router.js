@@ -3,12 +3,9 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.ViewRouter = exports.ViewRouterLocationChanged = exports.Navigator = exports.Route = exports.RouteMatcher = undefined;
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _util = require("./util");
 
@@ -20,7 +17,10 @@ var _vue = require("vue");
 
 var _vue2 = _interopRequireDefault(_vue);
 
-// we need a quick router-view component
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 var __awaiter = undefined && undefined.__awaiter || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) {
@@ -45,9 +45,11 @@ var __awaiter = undefined && undefined.__awaiter || function (thisArg, _argument
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-_vue2["default"].component("router-view", {
+
+// we need a quick router-view component
+_vue2.default.component("router-view", {
     render: function render(h) {
-        return h("div", { pre: true }, [h("div", { attrs: { "class": "__router_view" } }, [h("div")])]);
+        return h("div", { pre: true }, [h("div", { attrs: { class: "__router_view" } }, [h("div")])]);
     }
 });
 function arrayEqual(arr1, arr2) {
@@ -71,7 +73,7 @@ function parseQueryParams(str) {
     return { withoutQueryParams: strSplit[0], params: params };
 }
 
-var RouteMatcher = (function () {
+var RouteMatcher = exports.RouteMatcher = function () {
     function RouteMatcher() {
         _classCallCheck(this, RouteMatcher);
 
@@ -84,8 +86,8 @@ var RouteMatcher = (function () {
     _createClass(RouteMatcher, [{
         key: "add",
         value: function add(route, view) {
-            var data = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
-            var name = arguments.length <= 3 || arguments[3] === undefined ? null : arguments[3];
+            var data = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+            var name = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
 
             this.routes.push(new Route(route.split("/"), view, data));
         }
@@ -101,8 +103,8 @@ var RouteMatcher = (function () {
                 var m = this.routes[i].match(locations);
                 if (m.match) {
                     var params = this.routes[i].getParams(locations);
-                    var remaining = m.remaining;
-                    var matchedOn = m.matchedOn;
+                    var remaining = m.remaining,
+                        matchedOn = m.matchedOn;
 
                     return {
                         matches: true,
@@ -129,16 +131,14 @@ var RouteMatcher = (function () {
     }]);
 
     return RouteMatcher;
-})();
-
-exports.RouteMatcher = RouteMatcher;
+}();
 
 var NoMatch = { match: false, remaining: [], matchedOn: [] };
 
-var Route = (function () {
+var Route = exports.Route = function () {
     function Route(route, view) {
-        var data = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
-        var name = arguments.length <= 3 || arguments[3] === undefined ? null : arguments[3];
+        var data = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+        var name = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
 
         _classCallCheck(this, Route);
 
@@ -180,53 +180,54 @@ var Route = (function () {
     }, {
         key: "loadView",
         value: function loadView() {
-            return __awaiter(this, void 0, void 0, regeneratorRuntime.mark(function callee$2$0() {
+            return __awaiter(this, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
                 var res;
-                return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
-                    while (1) switch (context$3$0.prev = context$3$0.next) {
-                        case 0:
-                            if (!this.view.__template) {
-                                context$3$0.next = 5;
-                                break;
-                            }
+                return regeneratorRuntime.wrap(function _callee$(_context) {
+                    while (1) {
+                        switch (_context.prev = _context.next) {
+                            case 0:
+                                if (!this.view.__template) {
+                                    _context.next = 5;
+                                    break;
+                                }
 
-                            this.name = this.name || (0, _util.kebab)(this.view.name);
-                            return context$3$0.abrupt("return", this.view);
+                                this.name = this.name || (0, _util.kebab)(this.view.name);
+                                return _context.abrupt("return", this.view);
 
-                        case 5:
-                            res = this.view();
+                            case 5:
+                                // maybe it is a promise?
+                                res = this.view();
 
-                            if (!(res instanceof Promise)) {
-                                context$3$0.next = 10;
-                                break;
-                            }
+                                if (!(res instanceof Promise)) {
+                                    _context.next = 10;
+                                    break;
+                                }
 
-                            context$3$0.next = 9;
-                            return res;
+                                _context.next = 9;
+                                return res;
 
-                        case 9:
-                            res = context$3$0.sent;
+                            case 9:
+                                res = _context.sent;
 
-                        case 10:
-                            if (res["default"] && res["default"].__template) res = res["default"];
-                            this.name = this.name || (0, _util.kebab)(res.name);
-                            return context$3$0.abrupt("return", res);
+                            case 10:
+                                if (res.default && res.default.__template) res = res.default;
+                                this.name = this.name || (0, _util.kebab)(res.name);
+                                return _context.abrupt("return", res);
 
-                        case 13:
-                        case "end":
-                            return context$3$0.stop();
+                            case 13:
+                            case "end":
+                                return _context.stop();
+                        }
                     }
-                }, callee$2$0, this);
+                }, _callee, this);
             }));
         }
     }]);
 
     return Route;
-})();
+}();
 
-exports.Route = Route;
-
-var Navigator = (function () {
+var Navigator = exports.Navigator = function () {
     function Navigator() {
         _classCallCheck(this, Navigator);
     }
@@ -234,7 +235,7 @@ var Navigator = (function () {
     _createClass(Navigator, [{
         key: "navigate",
         value: function navigate(where) {
-            var queryParams = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+            var queryParams = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
             var paramsStr = "";
             if (queryParams) {
@@ -250,21 +251,17 @@ var Navigator = (function () {
     }]);
 
     return Navigator;
-})();
-
-exports.Navigator = Navigator;
+}();
 
 var bus = _container.ContainerInstance.get(_bus.Bus);
 
-var ViewRouterLocationChanged = function ViewRouterLocationChanged(location) {
+var ViewRouterLocationChanged = exports.ViewRouterLocationChanged = function ViewRouterLocationChanged(location) {
     _classCallCheck(this, ViewRouterLocationChanged);
 
     this.location = location;
 };
 
-exports.ViewRouterLocationChanged = ViewRouterLocationChanged;
-
-var ViewRouter = (function () {
+var ViewRouter = exports.ViewRouter = function () {
     function ViewRouter(viewEngine, starter) {
         _classCallCheck(this, ViewRouter);
 
@@ -277,37 +274,39 @@ var ViewRouter = (function () {
     _createClass(ViewRouter, [{
         key: "start",
         value: function start() {
-            return __awaiter(this, void 0, void 0, regeneratorRuntime.mark(function callee$2$0() {
+            return __awaiter(this, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
                 var starterView;
-                return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
-                    while (1) switch (context$3$0.prev = context$3$0.next) {
-                        case 0:
-                            context$3$0.next = 2;
-                            return this.runView(this.starter, document.getElementById("root"));
+                return regeneratorRuntime.wrap(function _callee2$(_context2) {
+                    while (1) {
+                        switch (_context2.prev = _context2.next) {
+                            case 0:
+                                _context2.next = 2;
+                                return this.runView(this.starter, document.getElementById("root"));
 
-                        case 2:
-                            starterView = context$3$0.sent;
+                            case 2:
+                                starterView = _context2.sent;
 
-                            if (starterView.router) {
-                                this.loadedViewsStack.push({
-                                    matchedOn: null,
-                                    queryParams: null,
-                                    router: starterView.router,
-                                    routerElement: function routerElement() {
-                                        return starterView.routerElementComponent.$el.children[0].children[0];
-                                    },
-                                    routerElementComponent: starterView.routerElementComponent,
-                                    view: starterView.view,
-                                    viewInstance: starterView.viewInstance
-                                });
-                            }
-                            this.changed();
+                                if (starterView.router) {
+                                    this.loadedViewsStack.push({
+                                        matchedOn: null,
+                                        queryParams: null,
+                                        router: starterView.router,
+                                        routerElement: function routerElement() {
+                                            return starterView.routerElementComponent.$el.children[0].children[0];
+                                        },
+                                        routerElementComponent: starterView.routerElementComponent,
+                                        view: starterView.view,
+                                        viewInstance: starterView.viewInstance
+                                    });
+                                }
+                                this.changed();
 
-                        case 5:
-                        case "end":
-                            return context$3$0.stop();
+                            case 5:
+                            case "end":
+                                return _context2.stop();
+                        }
                     }
-                }, callee$2$0, this);
+                }, _callee2, this);
             }));
         }
     }, {
@@ -318,10 +317,9 @@ var ViewRouter = (function () {
             //       example: when middleware runs and it cannot navigate
             bus.publish(new ViewRouterLocationChanged(fullLocation));
 
-            var _parseQueryParams = parseQueryParams(fullLocation);
-
-            var withoutQueryParams = _parseQueryParams.withoutQueryParams;
-            var params = _parseQueryParams.params;
+            var _parseQueryParams = parseQueryParams(fullLocation),
+                withoutQueryParams = _parseQueryParams.withoutQueryParams,
+                params = _parseQueryParams.params;
 
             var location = withoutQueryParams.split("/");
             // kick it off and see what happens
@@ -353,177 +351,170 @@ var ViewRouter = (function () {
     }, {
         key: "runMatching",
         value: function runMatching(location, fullLocation, queryParams, loadedView, viewStackIndex) {
-            return __awaiter(this, void 0, void 0, regeneratorRuntime.mark(function callee$2$0() {
+            return __awaiter(this, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
                 var match, hasMoreInStack, nextLView, matchQueryParams, _idx, view, newElement, idx;
 
-                return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
-                    while (1) switch (context$3$0.prev = context$3$0.next) {
-                        case 0:
-                            if (!(loadedView.router == null)) {
-                                context$3$0.next = 2;
-                                break;
-                            }
+                return regeneratorRuntime.wrap(function _callee3$(_context3) {
+                    while (1) {
+                        switch (_context3.prev = _context3.next) {
+                            case 0:
+                                if (!(loadedView.router == null)) {
+                                    _context3.next = 2;
+                                    break;
+                                }
 
-                            return context$3$0.abrupt("return");
+                                return _context3.abrupt("return");
 
-                        case 2:
-                            loadedView.router.fullLocation = fullLocation;
-                            match = loadedView.router.matches(location);
-
-                            if (!(match == null || match.matches == false)) {
-                                context$3$0.next = 11;
-                                break;
-                            }
-
-                            if (!(location.length == 0 && loadedView.router.matches([""]))) {
-                                context$3$0.next = 9;
-                                break;
-                            }
-
-                            match = loadedView.router.matches([""]);
-                            context$3$0.next = 11;
-                            break;
-
-                        case 9:
-                            // lets clear the routerView if we need too
-                            this.clearFrom(viewStackIndex);
-                            return context$3$0.abrupt("return");
-
-                        case 11:
-                            if (!(loadedView.router.canNavigate(match.route, fullLocation) == false)) {
-                                context$3$0.next = 13;
-                                break;
-                            }
-
-                            return context$3$0.abrupt("return");
-
-                        case 13:
-                            hasMoreInStack = this.loadedViewsStack.length > viewStackIndex + 1;
-
-                            if (!hasMoreInStack) {
-                                context$3$0.next = 22;
-                                break;
-                            }
-
-                            nextLView = this.loadedViewsStack[viewStackIndex + 1];
-                            matchQueryParams = JSON.stringify(this.loadedViewsStack.length <= viewStackIndex + 2 ? queryParams : {});
-
-                            if (!(arrayEqual(nextLView.matchedOn, match.matchedOn) && nextLView.queryParams == matchQueryParams)) {
-                                context$3$0.next = 22;
-                                break;
-                            }
-
-                            _idx = viewStackIndex + 1;
-                            context$3$0.next = 21;
-                            return this.runMatching(match.remaining, fullLocation, queryParams, this.loadedViewsStack[_idx], _idx);
-
-                        case 21:
-                            return context$3$0.abrupt("return");
-
-                        case 22:
-                            this.clearFrom(viewStackIndex);
-                            context$3$0.next = 25;
-                            return match.route.loadView();
-
-                        case 25:
-                            view = context$3$0.sent;
-
-                            if (loadedView.router) {
-                                loadedView.router.current = match.route.name;
+                            case 2:
                                 loadedView.router.fullLocation = fullLocation;
-                            }
-                            context$3$0.next = 29;
-                            return this.runView(view, loadedView.routerElement(), Object.assign({}, match.route.data, queryParams, match.params));
+                                match = loadedView.router.matches(location);
 
-                        case 29:
-                            newElement = context$3$0.sent;
+                                if (!(match == null || match.matches == false)) {
+                                    _context3.next = 11;
+                                    break;
+                                }
 
-                            this.loadedViewsStack.push({
-                                matchedOn: match.matchedOn,
-                                queryParams: JSON.stringify(match.remaining.length == 0 ? queryParams : {}),
-                                router: newElement.router,
-                                routerElement: function routerElement() {
-                                    return newElement.routerElementComponent.$el.children[0].children[0];
-                                },
-                                routerElementComponent: newElement.routerElementComponent,
-                                view: match.route.view,
-                                viewInstance: newElement.viewInstance
-                            });
-                            idx = viewStackIndex + 1;
-                            context$3$0.next = 34;
-                            return this.runMatching(match.remaining, fullLocation, queryParams, this.loadedViewsStack[idx], idx);
+                                if (!(location.length == 0 && loadedView.router.matches([""]))) {
+                                    _context3.next = 9;
+                                    break;
+                                }
 
-                        case 34:
-                        case "end":
-                            return context$3$0.stop();
+                                match = loadedView.router.matches([""]);
+                                _context3.next = 11;
+                                break;
+
+                            case 9:
+                                // lets clear the routerView if we need too
+                                this.clearFrom(viewStackIndex);
+                                return _context3.abrupt("return");
+
+                            case 11:
+                                if (!(loadedView.router.canNavigate(match.route, fullLocation) == false)) {
+                                    _context3.next = 13;
+                                    break;
+                                }
+
+                                return _context3.abrupt("return");
+
+                            case 13:
+                                // if the matched on is where we are at, move along
+                                hasMoreInStack = this.loadedViewsStack.length > viewStackIndex + 1;
+
+                                if (!hasMoreInStack) {
+                                    _context3.next = 22;
+                                    break;
+                                }
+
+                                nextLView = this.loadedViewsStack[viewStackIndex + 1];
+                                matchQueryParams = JSON.stringify(this.loadedViewsStack.length <= viewStackIndex + 2 ? queryParams : {});
+
+                                if (!(arrayEqual(nextLView.matchedOn, match.matchedOn) && nextLView.queryParams == matchQueryParams)) {
+                                    _context3.next = 22;
+                                    break;
+                                }
+
+                                _idx = viewStackIndex + 1;
+                                _context3.next = 21;
+                                return this.runMatching(match.remaining, fullLocation, queryParams, this.loadedViewsStack[_idx], _idx);
+
+                            case 21:
+                                return _context3.abrupt("return");
+
+                            case 22:
+                                this.clearFrom(viewStackIndex);
+                                _context3.next = 25;
+                                return match.route.loadView();
+
+                            case 25:
+                                view = _context3.sent;
+
+                                if (loadedView.router) {
+                                    loadedView.router.current = match.route.name;
+                                    loadedView.router.fullLocation = fullLocation;
+                                }
+                                _context3.next = 29;
+                                return this.runView(view, loadedView.routerElement(), Object.assign({}, match.route.data, queryParams, match.params));
+
+                            case 29:
+                                newElement = _context3.sent;
+
+                                this.loadedViewsStack.push({
+                                    matchedOn: match.matchedOn,
+                                    queryParams: JSON.stringify(match.remaining.length == 0 ? queryParams : {}),
+                                    router: newElement.router,
+                                    routerElement: function routerElement() {
+                                        return newElement.routerElementComponent.$el.children[0].children[0];
+                                    },
+                                    routerElementComponent: newElement.routerElementComponent,
+                                    view: match.route.view,
+                                    viewInstance: newElement.viewInstance
+                                });
+                                idx = viewStackIndex + 1;
+                                _context3.next = 34;
+                                return this.runMatching(match.remaining, fullLocation, queryParams, this.loadedViewsStack[idx], idx);
+
+                            case 34:
+                            case "end":
+                                return _context3.stop();
+                        }
                     }
-                }, callee$2$0, this);
+                }, _callee3, this);
             }));
         }
     }, {
         key: "runView",
         value: function runView(view, where) {
-            var params = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+            var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
-            return __awaiter(this, void 0, void 0, regeneratorRuntime.mark(function callee$2$0() {
+            return __awaiter(this, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee4() {
                 var v, routerSetup, didRender, router, setupRes, routerElementComponent;
-                return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
-                    while (1) switch (context$3$0.prev = context$3$0.next) {
-                        case 0:
-                            v = this.viewEngine.loadView(view, params);
-                            routerSetup = v.getRouterSetupFunction();
-                            didRender = false;
-                            router = null;
+                return regeneratorRuntime.wrap(function _callee4$(_context4) {
+                    while (1) {
+                        switch (_context4.prev = _context4.next) {
+                            case 0:
+                                v = this.viewEngine.loadView(view, params);
+                                routerSetup = v.getRouterSetupFunction();
+                                didRender = false;
+                                router = null;
 
-                            if (!routerSetup) {
-                                context$3$0.next = 12;
-                                break;
-                            }
+                                if (!routerSetup) {
+                                    _context4.next = 12;
+                                    break;
+                                }
 
-                            router = new RouteMatcher();
-                            setupRes = routerSetup(router);
+                                router = new RouteMatcher();
+                                setupRes = routerSetup(router);
 
-                            if (!(setupRes instanceof Promise)) {
-                                context$3$0.next = 12;
-                                break;
-                            }
+                                if (!(setupRes instanceof Promise)) {
+                                    _context4.next = 12;
+                                    break;
+                                }
 
-                            // go ahead and render the view, so if you wanted to, you can show a loader if you are
-                            // doing some sort of code splitting
-                            v.renderTo(where);
-                            didRender = true;
-                            context$3$0.next = 12;
-                            return setupRes;
+                                // go ahead and render the view, so if you wanted to, you can show a loader if you are
+                                // doing some sort of code splitting
+                                v.renderTo(where);
+                                didRender = true;
+                                _context4.next = 12;
+                                return setupRes;
 
-                        case 12:
-                            if (!didRender) v.renderTo(where);
-                            context$3$0.next = 15;
-                            return v.activate();
+                            case 12:
+                                if (!didRender) v.renderTo(where);
+                                _context4.next = 15;
+                                return v.activate();
 
-                        case 15:
-                            routerElementComponent = v.getRouterViewElement();
-                            return context$3$0.abrupt("return", { view: view, router: router, routerElementComponent: routerElementComponent, viewInstance: v });
+                            case 15:
+                                routerElementComponent = v.getRouterViewElement();
+                                return _context4.abrupt("return", { view: view, router: router, routerElementComponent: routerElementComponent, viewInstance: v });
 
-                        case 17:
-                        case "end":
-                            return context$3$0.stop();
+                            case 17:
+                            case "end":
+                                return _context4.stop();
+                        }
                     }
-                }, callee$2$0, this);
+                }, _callee4, this);
             }));
         }
     }]);
 
     return ViewRouter;
-})();
-
-exports.ViewRouter = ViewRouter;
-
-// maybe it is a promise?
-
-// check to see if there is a root/empty route before we give up
-
-// ok, run the middle ware??
-
-//this.clearFrom(viewStackIndex);
-
-// if the matched on is where we are at, move along
+}();

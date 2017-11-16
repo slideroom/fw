@@ -38,9 +38,7 @@ gulp.task("dts-fix", function() {
 gulp.task('build-common', function() {
   return gulp.src(["src/**/*.ts", "typings/**/*.d.ts"])
     .pipe(ts(tsProject))
-    .pipe(to5({
-      modules: "common"
-    }))
+    .pipe(to5())
     .pipe(gulp.dest(outputPath));
 });
 

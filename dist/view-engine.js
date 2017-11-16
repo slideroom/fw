@@ -3,14 +3,11 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
+exports.ViewEngine = exports.View = exports.ComponentEventBus = undefined;
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 exports.prop = prop;
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var _util = require("./util");
 
@@ -18,7 +15,11 @@ var _vue = require("vue");
 
 var _vue2 = _interopRequireDefault(_vue);
 
-var ComponentEventBus = (function () {
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var ComponentEventBus = exports.ComponentEventBus = function () {
     function ComponentEventBus(instance) {
         _classCallCheck(this, ComponentEventBus);
 
@@ -44,9 +45,7 @@ var ComponentEventBus = (function () {
     }]);
 
     return ComponentEventBus;
-})();
-
-exports.ComponentEventBus = ComponentEventBus;
+}();
 
 function prop(defaultValue) {
     return function (target, key, descriptor) {
@@ -55,13 +54,12 @@ function prop(defaultValue) {
         Reflect.set(target.constructor, "view-engine:props", props);
     };
 }
-
 function getProps(cl) {
     var props = Reflect.get(cl, "view-engine:props") || [];
     var propObject = {};
     props.forEach(function (p) {
         propObject[p.key] = {
-            "default": p.defaultValue
+            default: p.defaultValue
         };
     });
     return propObject;
@@ -92,8 +90,8 @@ var makeComputedObject = function makeComputedObject(instance) {
         _iteratorError = err;
     } finally {
         try {
-            if (!_iteratorNormalCompletion && _iterator["return"]) {
-                _iterator["return"]();
+            if (!_iteratorNormalCompletion && _iterator.return) {
+                _iterator.return();
             }
         } finally {
             if (_didIteratorError) {
@@ -105,7 +103,7 @@ var makeComputedObject = function makeComputedObject(instance) {
     return obj;
 };
 
-var Component = (function () {
+var Component = function () {
     function Component(container, viewModel, template) {
         _classCallCheck(this, Component);
 
@@ -119,7 +117,7 @@ var Component = (function () {
         value: function init() {
             var that = this;
             var props = getProps(this.viewModel);
-            return _vue2["default"].extend({
+            return _vue2.default.extend({
                 template: this.template,
                 data: function data() {
                     var _this = this;
@@ -154,8 +152,8 @@ var Component = (function () {
                         _iteratorError2 = err;
                     } finally {
                         try {
-                            if (!_iteratorNormalCompletion2 && _iterator2["return"]) {
-                                _iterator2["return"]();
+                            if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                                _iterator2.return();
                             }
                         } finally {
                             if (_didIteratorError2) {
@@ -184,8 +182,8 @@ var Component = (function () {
                         _iteratorError3 = err;
                     } finally {
                         try {
-                            if (!_iteratorNormalCompletion3 && _iterator3["return"]) {
-                                _iterator3["return"]();
+                            if (!_iteratorNormalCompletion3 && _iterator3.return) {
+                                _iterator3.return();
                             }
                         } finally {
                             if (_didIteratorError3) {
@@ -219,7 +217,7 @@ var Component = (function () {
     }]);
 
     return Component;
-})();
+}();
 
 function hookUpComponentRefs(r, rViewModel) {
     /*
@@ -230,9 +228,9 @@ function hookUpComponentRefs(r, rViewModel) {
     */
 }
 
-var View = (function () {
+var View = exports.View = function () {
     function View(viewModel, template) {
-        var activateParams = arguments.length <= 2 || arguments[2] === undefined ? null : arguments[2];
+        var activateParams = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
         _classCallCheck(this, View);
 
@@ -247,7 +245,7 @@ var View = (function () {
         value: function renderTo(element) {
             var that = this;
             var vm = this.viewModel;
-            this.r = new _vue2["default"]({
+            this.r = new _vue2.default({
                 el: element,
                 template: this.template,
                 data: vm,
@@ -274,8 +272,8 @@ var View = (function () {
                         _iteratorError4 = err;
                     } finally {
                         try {
-                            if (!_iteratorNormalCompletion4 && _iterator4["return"]) {
-                                _iterator4["return"]();
+                            if (!_iteratorNormalCompletion4 && _iterator4.return) {
+                                _iterator4.return();
                             }
                         } finally {
                             if (_didIteratorError4) {
@@ -345,11 +343,9 @@ var View = (function () {
     }]);
 
     return View;
-})();
+}();
 
-exports.View = View;
-
-var ViewEngine = (function () {
+var ViewEngine = exports.ViewEngine = function () {
     function ViewEngine(container) {
         _classCallCheck(this, ViewEngine);
 
@@ -365,12 +361,12 @@ var ViewEngine = (function () {
             }
             for (var key in __webpack_require__.c) {
                 if (!__webpack_require__.c[key].exports) continue;
-                var _exports2 = __webpack_require__.c[key].exports;
-                if (!_exports2.__html) continue;
+                var exports = __webpack_require__.c[key].exports;
+                if (!exports.__html) continue;
                 // need to loop through exports to see if what we exported matches c
-                for (var exportKey in _exports2) {
-                    if (_exports2[exportKey] !== c) continue;
-                    var template = _exports2.__html;
+                for (var exportKey in exports) {
+                    if (exports[exportKey] !== c) continue;
+                    var template = exports.__html;
                     return template;
                 }
             }
@@ -389,8 +385,9 @@ var ViewEngine = (function () {
         }
     }, {
         key: "loadView",
-        value: function loadView(c, activateParams, overrider) {
-            if (activateParams === undefined) activateParams = null;
+        value: function loadView(c) {
+            var activateParams = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+            var overrider = arguments[2];
 
             var template = this.getTemplateFor(c);
             var viewModel = this.container.get(c, false, overrider);
@@ -405,11 +402,9 @@ var ViewEngine = (function () {
             var component = new Component(this.container, c, template);
             this.setupComponents(c);
             this.components.set(c, true);
-            _vue2["default"].component((0, _util.kebab)(c.name), component.init());
+            _vue2.default.component((0, _util.kebab)(c.name), component.init());
         }
     }]);
 
     return ViewEngine;
-})();
-
-exports.ViewEngine = ViewEngine;
+}();

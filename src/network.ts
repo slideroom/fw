@@ -116,12 +116,12 @@ export class Network {
         // build context;
         const requestContext: RequestContext = new ARequestContext(p);
 
-        for (const m of this.middleware) {
+        this.middleware.forEach(m => {
           const requestInstance = ContainerInstance.get(m);
           if (isRequestMiddleware(requestInstance)) {
             requestInstance.onRequest(requestContext);
           }
-        }
+        });
       }
 
       // TODO: look at this again when there is no network/bad domain
@@ -146,12 +146,12 @@ export class Network {
             parsedRes,
           );
 
-          for (const m of this.middleware.reverse()) {
+          this.middleware.reverse().forEach(m => {
             const instance = ContainerInstance.get(m);
             if (isResponseMiddleware(instance)) {
               instance.onResponse(responseContext);
             }
-          }
+          });
         }
 
         if (status >= 200 && status < 300) {

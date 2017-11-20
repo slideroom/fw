@@ -10,7 +10,7 @@ export function inject(target) { return; }
 
 export function needs(...things: any[]) {
   return function(target) {
-    (Reflect as any).set(target, "components", things);
+    (Reflect as any).defineMetadata("components", things, target);
   }
 }
 

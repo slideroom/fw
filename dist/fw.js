@@ -62,7 +62,7 @@ function needs() {
     }
 
     return function (target) {
-        Reflect.set(target, "components", things);
+        Reflect.defineMetadata("components", things, target);
     };
 }
 var viewEngine = new _viewEngine.ViewEngine(_container.ContainerInstance);

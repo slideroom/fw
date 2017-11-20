@@ -49,13 +49,13 @@ var ComponentEventBus = exports.ComponentEventBus = function () {
 
 function prop(defaultValue) {
     return function (target, key, descriptor) {
-        var props = Reflect.get(target.constructor, "view-engine:props") || [];
+        var props = Reflect.getMetadata("view-engine:props", target.constructor) || [];
         props.push({ key: key, defaultValue: defaultValue });
-        Reflect.set(target.constructor, "view-engine:props", props);
+        Reflect.defineMetadata("view-engine:props", props, target.constructor);
     };
 }
 function getProps(cl) {
-    var props = Reflect.get(cl, "view-engine:props") || [];
+    var props = Reflect.getMetadata("view-engine:props", cl) || [];
     var propObject = {};
     props.forEach(function (p) {
         propObject[p.key] = {
@@ -377,7 +377,7 @@ var ViewEngine = exports.ViewEngine = function () {
         value: function setupComponents(c) {
             var _this5 = this;
 
-            var needs = Reflect.get(c, "components");
+            var needs = Reflect.getMetadata("components", c);
             if (needs == null) return;
             needs.forEach(function (need) {
                 return _this5.registerComponent(need);

@@ -18,14 +18,14 @@ type propDef = { key: string, defaultValue: any };
 
 export function prop(defaultValue) {
   return function(target, key, descriptor?) {
-    const props: propDef[] = Reflect.get(target.constructor, "view-engine:props") || [];
+    const props: propDef[] = (Reflect as any).getMetadata("view-engine:props", target.constructor) || [];
     props.push({ key, defaultValue });
-    Reflect.set(target.constructor, "view-engine:props", props);
+    (Reflect as any).defineMetadata("view-engine:props", props, target.constructor);
   };
 }
 
 function getProps(cl) {
-  var props: propDef[] = Reflect.get(cl, "view-engine:props") || [];
+  var props: propDef[] = (Reflect as any).getMetadata("view-engine:props", cl) || [];
   let propObject: { [key: string]: PropOptions } = {};
 
   props.forEach(p => {
@@ -242,7 +242,7 @@ export class ViewEngine {
   }
 
   private setupComponents(c: any) {
-    const needs = (Reflect as any).get(c, "components");
+    const needs = (Reflect as any).getMetadata("components", c);
 
     if (needs == null) return;
 

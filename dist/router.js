@@ -261,6 +261,24 @@ var ViewRouterLocationChanged = exports.ViewRouterLocationChanged = function Vie
     this.location = location;
 };
 
+var iEVersion = function iEVersion() {
+    var ua = window.navigator.userAgent;
+    var msie = ua.indexOf("MSIE ");
+    if (msie > 0) {
+        return parseInt(ua.substring(msie + 5, ua.indexOf('.', msie)), 10);
+    }
+    var trident = ua.indexOf('Trident/');
+    if (trident > 0) {
+        var rv = ua.indexOf('rv:');
+        return parseInt(ua.substring(rv + 3, ua.indexOf('.', rv)), 10);
+    }
+    var edge = ua.indexOf('Edge/');
+    if (edge > 0) {
+        return parseInt(ua.substring(edge + 5, ua.indexOf('.', edge)), 10);
+    }
+    return -1;
+};
+
 var ViewRouter = exports.ViewRouter = function () {
     function ViewRouter(viewEngine, starter) {
         _classCallCheck(this, ViewRouter);
@@ -268,7 +286,13 @@ var ViewRouter = exports.ViewRouter = function () {
         this.viewEngine = viewEngine;
         this.starter = starter;
         this.loadedViewsStack = [];
-        window.addEventListener("popstate", this.changed.bind(this));
+        if (iEVersion() == 11) {
+            console.log("using hashchange");
+            window.addEventListener("hashchange", this.changed.bind(this));
+        } else {
+            console.log("using popstate");
+            window.addEventListener("popstate", this.changed.bind(this));
+        }
     }
 
     _createClass(ViewRouter, [{

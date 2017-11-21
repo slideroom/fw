@@ -222,11 +222,37 @@ export class ViewRouterLocationChanged {
   constructor(public location: string) {}
 }
 
+const iEVersion = () => {
+  const ua = window.navigator.userAgent;
+  const msie = ua.indexOf("MSIE ");
+  if (msie > 0) {
+    return parseInt(ua.substring(msie + 5, ua.indexOf('.', msie)), 10);
+  }
+  const trident = ua.indexOf('Trident/');
+  if (trident > 0) {
+    const rv = ua.indexOf('rv:');
+    return parseInt(ua.substring(rv + 3, ua.indexOf('.', rv)), 10);
+  }
+
+  const edge = ua.indexOf('Edge/');
+  if (edge > 0) {
+    return parseInt(ua.substring(edge + 5, ua.indexOf('.', edge)), 10);
+  }
+
+  return -1;
+};
+
 export class ViewRouter {
   private loadedViewsStack: LoadedView[] = [];
 
   constructor(private viewEngine: ViewEngine, private starter: makerOf<any>) {
-    window.addEventListener("popstate", this.changed.bind(this));
+    if (iEVersion() == 11) {
+      console.log("using hashchange");
+      window.addEventListener("hashchange", this.changed.bind(this));
+    } else {
+      console.log("using popstate");
+      window.addEventListener("popstate", this.changed.bind(this));
+    }
   }
 
   public async start() {

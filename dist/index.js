@@ -102,6 +102,12 @@ Object.defineProperty(exports, "ComponentEventBus", {
     return _viewEngine.ComponentEventBus;
   }
 });
+Object.defineProperty(exports, "provided", {
+  enumerable: true,
+  get: function get() {
+    return _viewEngine.provided;
+  }
+});
 
 var _network = require("./network");
 

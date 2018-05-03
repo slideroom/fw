@@ -8,6 +8,7 @@ exports.ViewEngine = exports.View = exports.ComponentEventBus = undefined;
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 exports.prop = prop;
+exports.provided = provided;
 
 var _util = require("./util");
 
@@ -47,11 +48,20 @@ var ComponentEventBus = exports.ComponentEventBus = function () {
     return ComponentEventBus;
 }();
 
-function prop(defaultValue) {
+function prop() {
+    var defaultValue = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+
     return function (target, key, descriptor) {
         var props = Reflect.getMetadata("view-engine:props", target.constructor) || [];
         props.push({ key: key, defaultValue: defaultValue });
         Reflect.defineMetadata("view-engine:props", props, target.constructor);
+    };
+}
+function provided() {
+    return function (target, key, descriptor) {
+        var props = Reflect.getMetadata("view-engine:provided", target.constructor) || [];
+        props.push({ key: key, defaultValue: null });
+        Reflect.defineMetadata("view-engine:provided", props, target.constructor);
     };
 }
 function getProps(cl) {
@@ -63,6 +73,13 @@ function getProps(cl) {
         };
     });
     return propObject;
+}
+function getProvided(cl) {
+    var props = Reflect.getMetadata("view-engine:provided", cl) || [];
+    if (props.length == 0) return undefined;
+    return props.map(function (p) {
+        return p.key;
+    });
 }
 var makeComputedObject = function makeComputedObject(instance) {
     var obj = {};
@@ -117,6 +134,7 @@ var Component = function () {
         value: function init() {
             var that = this;
             var props = getProps(this.viewModel);
+            var provided = getProvided(this.viewModel);
             return _vue2.default.extend({
                 template: this.template,
                 data: function data() {
@@ -126,24 +144,22 @@ var Component = function () {
                         o.use(ComponentEventBus, new ComponentEventBus(_this));
                     });
                     this.$options.computed = makeComputedObject(instance);
-                    return instance;
-                },
-                computed: {},
-                props: props,
-                created: function created() {
-                    // setup the methods
-                    this.methods = {};
+                    var provide = instance.provide;
+                    if (provide && typeof provide == "function") {
+                        this.$options.provide = provide;
+                    }
+                    this.$options.methods = {};
                     var _iteratorNormalCompletion2 = true;
                     var _didIteratorError2 = false;
                     var _iteratorError2 = undefined;
 
                     try {
-                        for (var _iterator2 = Object.getOwnPropertyNames(this.$data.constructor.prototype)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                        for (var _iterator2 = Object.getOwnPropertyNames(instance.constructor.prototype)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
                             var m = _step2.value;
 
-                            if (typeof this.$data[m] == "function" && m != "constructor") {
-                                var boundFn = this.$data[m].bind(this);
-                                this.methods[m] = boundFn;
+                            if (typeof instance[m] == "function" && m != "constructor" && m != "provide") {
+                                var boundFn = instance[m].bind(this);
+                                this.$options.methods[m] = boundFn;
                                 this[m] = boundFn;
                             }
                         }
@@ -162,6 +178,12 @@ var Component = function () {
                         }
                     }
 
+                    return instance;
+                },
+                computed: {},
+                props: props,
+                inject: provided,
+                created: function created() {
                     this.___propWatcherUnscribers = [];
                     var _iteratorNormalCompletion3 = true;
                     var _didIteratorError3 = false;

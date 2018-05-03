@@ -36,7 +36,8 @@ declare module 'fw/view-engine' {
 	    dispatch(name: string, ...data: any[]): void;
 	    updateModel(value: any): void;
 	}
-	export function prop(defaultValue: any): (target: any, key: any, descriptor?: any) => void;
+	export function prop(defaultValue?: any): (target: any, key: any, descriptor?: any) => void;
+	export function provided(): (target: any, key: any, descriptor?: any) => void;
 	export class View<T> {
 	    private viewModel;
 	    private template;
@@ -203,7 +204,7 @@ declare module 'fw' {
 	export { Navigator, RouterConfig, Route, ViewRouterLocationChanged } from 'fw/router';
 	export { bootstrap, inject, needs, FrameworkConfig } from 'fw/fw';
 	export { Bus, Subscription } from 'fw/bus';
-	export { ViewEngine, View, prop, ComponentEventBus } from 'fw/view-engine';
+	export { ViewEngine, View, prop, ComponentEventBus, provided } from 'fw/view-engine';
 	export { Network, NetworkException, NVP, NetworkMiddleware, NetworkRequestMiddleware, NetworkResponseMiddleware, RequestContext, ResponseContext } from 'fw/network';
 	export { kebab, CloseStack } from 'fw/util';
 

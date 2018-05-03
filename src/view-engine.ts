@@ -16,11 +16,19 @@ export class ComponentEventBus {
 
 type propDef = { key: string, defaultValue: any };
 
-export function prop(defaultValue) {
+export function prop(defaultValue = null) {
   return function(target, key, descriptor?) {
     const props: propDef[] = (Reflect as any).getMetadata("view-engine:props", target.constructor) || [];
     props.push({ key, defaultValue });
     (Reflect as any).defineMetadata("view-engine:props", props, target.constructor);
+  };
+}
+
+export function provided() { // leaving room for defaults, when upgrading vue
+  return function(target, key, descriptor?) {
+    const props: propDef[] = (Reflect as any).getMetadata("view-engine:provided", target.constructor) || [];
+    props.push({ key, defaultValue: null });
+    (Reflect as any).defineMetadata("view-engine:provided", props, target.constructor);
   };
 }
 
@@ -35,6 +43,13 @@ function getProps(cl) {
   });
 
   return propObject;
+}
+
+function getProvided(cl) {
+  var props: propDef[] = (Reflect as any).getMetadata("view-engine:provided", cl) || [];
+  if (props.length == 0) return undefined;
+
+  return props.map(p => p.key);
 }
 
 const makeComputedObject = (instance: any) => {
@@ -63,6 +78,7 @@ class Component<T> {
     const that = this;
 
     const props = getProps(this.viewModel);
+    const provided = getProvided(this.viewModel);
 
     return Vue.extend({
       template: this.template,
@@ -73,22 +89,27 @@ class Component<T> {
 
         this.$options.computed = makeComputedObject(instance);
 
-        return instance;
-      },
-      computed: {},
-      props: props,
-      created: function() {
-        // setup the methods
+        const provide = (instance as any).provide;
 
-        (this as any).methods = {};
-        for (let m of Object.getOwnPropertyNames(this.$data.constructor.prototype)) {
-          if (typeof this.$data[m] == "function" && m != "constructor") {
-            const boundFn = this.$data[m].bind(this);
-            (this as any).methods[m] = boundFn;
+        if (provide && typeof provide == "function") {
+          this.$options.provide = provide;
+        }
+
+        this.$options.methods = {};
+        for (let m of Object.getOwnPropertyNames(instance.constructor.prototype)) {
+          if (typeof instance[m] == "function" && m != "constructor" && m != "provide") {
+            const boundFn = instance[m].bind(this);
+            this.$options.methods[m] = boundFn;
             this[m] = boundFn;
           }
         }
 
+        return instance;
+      },
+      computed: {},
+      props: props,
+      inject: provided,
+      created: function() {
         (this as any).___propWatcherUnscribers = [];
 
         for (let propName of Object.getOwnPropertyNames(props)) {

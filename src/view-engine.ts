@@ -71,6 +71,10 @@ const makeComputedObject = (instance: any) => {
   return obj;
 };
 
+const specialMethods = {
+  "provide": true,
+};
+
 class Component<T> {
   constructor(private container: Container, private viewModel: makerOf<T>, private template: string) { }
 
@@ -90,14 +94,13 @@ class Component<T> {
         this.$options.computed = makeComputedObject(instance);
 
         const provide = (instance as any).provide;
-
         if (provide && typeof provide == "function") {
           this.$options.provide = provide;
         }
 
         this.$options.methods = {};
         for (let m of Object.getOwnPropertyNames(instance.constructor.prototype)) {
-          if (typeof instance[m] == "function" && m != "constructor" && m != "provide") {
+          if (typeof instance[m] == "function" && m != "constructor" && !specialMethods[m]) {
             const boundFn = instance[m].bind(this);
             this.$options.methods[m] = boundFn;
             this[m] = boundFn;
@@ -110,6 +113,11 @@ class Component<T> {
       props: props,
       inject: provided,
       created: function() {
+        const createdFn = this.$data["created"];
+        if (typeof createdFn == "function") {
+          createdFn.apply(this, []);
+        }
+
         (this as any).___propWatcherUnscribers = [];
 
         for (let propName of Object.getOwnPropertyNames(props)) {

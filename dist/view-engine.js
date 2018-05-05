@@ -119,6 +119,9 @@ var makeComputedObject = function makeComputedObject(instance) {
 
     return obj;
 };
+var specialMethods = {
+    "provide": true
+};
 
 var Component = function () {
     function Component(container, viewModel, template) {
@@ -157,7 +160,7 @@ var Component = function () {
                         for (var _iterator2 = Object.getOwnPropertyNames(instance.constructor.prototype)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
                             var m = _step2.value;
 
-                            if (typeof instance[m] == "function" && m != "constructor" && m != "provide") {
+                            if (typeof instance[m] == "function" && m != "constructor" && !specialMethods[m]) {
                                 var boundFn = instance[m].bind(this);
                                 this.$options.methods[m] = boundFn;
                                 this[m] = boundFn;
@@ -184,6 +187,10 @@ var Component = function () {
                 props: props,
                 inject: provided,
                 created: function created() {
+                    var createdFn = this.$data["created"];
+                    if (typeof createdFn == "function") {
+                        createdFn.apply(this, []);
+                    }
                     this.___propWatcherUnscribers = [];
                     var _iteratorNormalCompletion3 = true;
                     var _didIteratorError3 = false;

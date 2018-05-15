@@ -38,25 +38,13 @@ declare module 'fw/view-engine' {
 	}
 	export function prop(defaultValue?: any): (target: any, key: any, descriptor?: any) => void;
 	export function provided(): (target: any, key: any, descriptor?: any) => void;
-	export class View<T> {
-	    private viewModel;
-	    private template;
-	    private activateParams;
-	    private r;
-	    constructor(viewModel: T, template: string, activateParams?: any);
-	    renderTo(element: HTMLElement): void;
-	    activate(): Promise<{}>;
-	    getRouterSetupFunction(): any;
-	    getRouterViewElement(): any;
-	    remove(): void;
-	}
+	export const makeVueComponent: (viewModel: makerOf<any>, onInstanceCreated?: (vue: any, instance: any) => void, overrider?: (o: ContainerOverrider) => void) => any;
+	export const makeAndActivate: (viewModel: makerOf<any>, where: Element, activateData?: any, overrider?: (o: ContainerOverrider) => void) => Promise<void>;
 	export class ViewEngine {
-	    private container;
+	    container: Container;
 	    private components;
 	    constructor(container: Container);
 	    private getTemplateFor<T>(c);
-	    private setupComponents(c);
-	    loadView<T>(c: makerOf<T>, activateParams?: any, overrider?: (o: ContainerOverrider) => void): View<T>;
 	    registerComponent<T>(c: makerOf<T>): void;
 	}
 
@@ -91,12 +79,14 @@ declare module 'fw/router' {
 	    addMiddleware(middleware: makerOf<RouterMiddlware>): void;
 	    current: string;
 	    fullLocation: string;
+	    params: any;
 	}
 	export class RouteMatcher {
 	    private routes;
 	    private middleware;
 	    current: string;
 	    fullLocation: string;
+	    params: any;
 	    add(route: string, view: viewMaker<any>, data?: any, name?: any): void;
 	    addMiddleware(middleware: makerOf<RouterMiddlware>): void;
 	    matches(locations: string[]): {
@@ -204,7 +194,7 @@ declare module 'fw' {
 	export { Navigator, RouterConfig, Route, ViewRouterLocationChanged } from 'fw/router';
 	export { bootstrap, inject, needs, FrameworkConfig } from 'fw/fw';
 	export { Bus, Subscription } from 'fw/bus';
-	export { ViewEngine, View, prop, ComponentEventBus, provided } from 'fw/view-engine';
+	export { ViewEngine, prop, ComponentEventBus, provided, makeVueComponent, makeAndActivate } from 'fw/view-engine';
 	export { Network, NetworkException, NVP, NetworkMiddleware, NetworkRequestMiddleware, NetworkResponseMiddleware, RequestContext, ResponseContext } from 'fw/network';
 	export { kebab, CloseStack } from 'fw/util';
 

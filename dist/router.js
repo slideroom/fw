@@ -11,6 +11,8 @@ var _util = require("./util");
 
 var _container = require("./container");
 
+var _viewEngine = require("./view-engine");
+
 var _bus = require("./bus");
 
 var _vue = require("vue");
@@ -48,8 +50,11 @@ var __awaiter = undefined && undefined.__awaiter || function (thisArg, _argument
 
 // we need a quick router-view component
 _vue2.default.component("router-view", {
-    render: function render(h) {
-        return h("div", { pre: true }, [h("div", { attrs: { class: "__router_view" } }, [h("div")])]);
+    functional: true,
+    render: function render(_, ctx) {
+        var h = ctx.parent.$createElement;
+        var component = ctx.parent._routeComponent;
+        return h(component, ctx.data, ctx.children);
     }
 });
 function arrayEqual(arr1, arr2) {
@@ -81,6 +86,7 @@ var RouteMatcher = exports.RouteMatcher = function () {
         this.middleware = [];
         this.current = "";
         this.fullLocation = "";
+        this.params = null;
     }
 
     _createClass(RouteMatcher, [{
@@ -287,10 +293,8 @@ var ViewRouter = exports.ViewRouter = function () {
         this.starter = starter;
         this.loadedViewsStack = [];
         if (iEVersion() == 11) {
-            console.log("using hashchange");
             window.addEventListener("hashchange", this.changed.bind(this));
         } else {
-            console.log("using popstate");
             window.addEventListener("popstate", this.changed.bind(this));
         }
     }
@@ -315,12 +319,10 @@ var ViewRouter = exports.ViewRouter = function () {
                                         matchedOn: null,
                                         queryParams: null,
                                         router: starterView.router,
-                                        routerElement: function routerElement() {
-                                            return starterView.routerElementComponent.$el.children[0].children[0];
-                                        },
-                                        routerElementComponent: starterView.routerElementComponent,
+                                        destroy: starterView.destroy,
                                         view: starterView.view,
-                                        viewInstance: starterView.viewInstance
+                                        component: starterView.component,
+                                        vueInstance: starterView.vueInstance
                                     });
                                 }
                                 this.changed();
@@ -362,14 +364,10 @@ var ViewRouter = exports.ViewRouter = function () {
             var loadedView = this.loadedViewsStack[viewStackIndex];
             // i need to go through all of the elements above the index and trigger an unrender
             this.loadedViewsStack.forEach(function (v, idx) {
-                if (idx > viewStackIndex && v.viewInstance) {
-                    v.viewInstance.remove();
+                if (idx > viewStackIndex && v.destroy) {
+                    v.destroy();
                 }
             });
-            if (loadedView.routerElementComponent) {
-                loadedView.routerElementComponent.$destroy();
-                loadedView.routerElement().innerHTML = "";
-            }
             this.loadedViewsStack.splice(viewStackIndex + 1);
         }
     }, {
@@ -454,10 +452,11 @@ var ViewRouter = exports.ViewRouter = function () {
 
                                 if (loadedView.router) {
                                     loadedView.router.current = match.route.name;
+                                    loadedView.router.params = match.params;
                                     loadedView.router.fullLocation = fullLocation;
                                 }
                                 _context3.next = 29;
-                                return this.runView(view, loadedView.routerElement(), Object.assign({}, match.route.data, queryParams, match.params));
+                                return this.runView(view, loadedView.vueInstance, Object.assign({}, match.route.data, queryParams, match.params));
 
                             case 29:
                                 newElement = _context3.sent;
@@ -466,12 +465,10 @@ var ViewRouter = exports.ViewRouter = function () {
                                     matchedOn: match.matchedOn,
                                     queryParams: JSON.stringify(match.remaining.length == 0 ? queryParams : {}),
                                     router: newElement.router,
-                                    routerElement: function routerElement() {
-                                        return newElement.routerElementComponent.$el.children[0].children[0];
-                                    },
-                                    routerElementComponent: newElement.routerElementComponent,
                                     view: match.route.view,
-                                    viewInstance: newElement.viewInstance
+                                    destroy: newElement.destroy,
+                                    component: newElement.component,
+                                    vueInstance: newElement.vueInstance
                                 });
                                 idx = viewStackIndex + 1;
                                 _context3.next = 34;
@@ -491,44 +488,73 @@ var ViewRouter = exports.ViewRouter = function () {
             var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
 
             return __awaiter(this, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee4() {
-                var v, routerSetup, didRender, router, setupRes, routerElementComponent;
+                var router, setupRes, activateRes, vueInstance, dataCreateResolver, dataCreate, component;
                 return regeneratorRuntime.wrap(function _callee4$(_context4) {
                     while (1) {
                         switch (_context4.prev = _context4.next) {
                             case 0:
-                                v = this.viewEngine.loadView(view, params);
-                                routerSetup = v.getRouterSetupFunction();
-                                didRender = false;
                                 router = null;
+                                setupRes = null;
+                                activateRes = null;
+                                vueInstance = null;
+                                dataCreateResolver = null;
+                                dataCreate = new Promise(function (res) {
+                                    return dataCreateResolver = res;
+                                });
+                                component = (0, _viewEngine.makeVueComponent)(view, function (vue, instance) {
+                                    vueInstance = vue;
+                                    if (typeof instance["registerRoutes"] == "function") {
+                                        var routerSetup = instance["registerRoutes"].bind(instance);
+                                        router = new RouteMatcher();
+                                        setupRes = routerSetup(router);
+                                    }
+                                    if (typeof instance["activate"] == "function") {
+                                        var activateFn = instance["activate"].bind(instance);
+                                        activateRes = activateFn(params);
+                                    }
+                                    dataCreateResolver();
+                                });
 
-                                if (!routerSetup) {
-                                    _context4.next = 12;
-                                    break;
+                                if (where instanceof _vue2.default) {
+                                    where._routeComponent = component;
+                                    where.$forceUpdate();
+                                } else {
+                                    new component().$mount(where);
                                 }
+                                _context4.next = 10;
+                                return dataCreate;
 
-                                router = new RouteMatcher();
-                                setupRes = routerSetup(router);
-
+                            case 10:
                                 if (!(setupRes instanceof Promise)) {
-                                    _context4.next = 12;
+                                    _context4.next = 13;
                                     break;
                                 }
 
-                                // go ahead and render the view, so if you wanted to, you can show a loader if you are
-                                // doing some sort of code splitting
-                                v.renderTo(where);
-                                didRender = true;
-                                _context4.next = 12;
+                                _context4.next = 13;
                                 return setupRes;
 
-                            case 12:
-                                if (!didRender) v.renderTo(where);
-                                _context4.next = 15;
-                                return v.activate();
+                            case 13:
+                                if (!(activateRes instanceof Promise)) {
+                                    _context4.next = 16;
+                                    break;
+                                }
 
-                            case 15:
-                                routerElementComponent = v.getRouterViewElement();
-                                return _context4.abrupt("return", { view: view, router: router, routerElementComponent: routerElementComponent, viewInstance: v });
+                                _context4.next = 16;
+                                return activateRes;
+
+                            case 16:
+                                return _context4.abrupt("return", {
+                                    router: router,
+                                    component: component,
+                                    view: view,
+                                    vueInstance: vueInstance,
+                                    destroy: function destroy() {
+                                        if (where instanceof _vue2.default) {
+                                            where._routeComponent = null;
+                                            where.$forceUpdate();
+                                        }
+                                    }
+                                });
 
                             case 17:
                             case "end":
@@ -536,7 +562,37 @@ var ViewRouter = exports.ViewRouter = function () {
                         }
                     }
                 }, _callee4, this);
-            }));
+            })
+            /*
+                     const v = this.viewEngine.loadView(view, params);
+                     const routerSetup = v.getRouterSetupFunction();
+                     let didRender = false;
+                     let router: RouteMatcher = null;
+            if (routerSetup) {
+              router = new RouteMatcher();
+              const setupRes = routerSetup(router);
+              if (setupRes instanceof Promise) {
+                // go ahead and render the view, so if you wanted to, you can show a loader if you are
+                // doing some sort of code splitting
+                if (where instanceof Vue)
+                  v.renderIn(where);
+                else
+                  v.renderTo(where);
+                         didRender = true;
+                         await setupRes;
+              }
+            }
+                     if (!didRender) {
+              if (where instanceof Vue)
+                v.renderIn(where);
+              else
+                v.renderTo(where);
+            }
+                     await v.activate();
+                     const routerElementComponent = v.getRouterViewComponent();
+                     return { view, router, routerElementComponent, viewInstance: v };
+            */
+            );
         }
     }]);
 

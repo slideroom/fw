@@ -15,6 +15,8 @@ var _container = require("./container");
 
 var _viewEngine = require("./view-engine");
 
+var _util = require("./util");
+
 var _router = require("./router");
 
 var _bus = require("./bus");
@@ -92,7 +94,7 @@ var FrameworkConfig = exports.FrameworkConfig = function () {
             }
 
             components.forEach(function (component) {
-                return viewEngine.registerComponent(component);
+                _vue2.default.component((0, _util.kebab)(component.name), (0, _viewEngine.makeVueComponent)(component));
             });
         }
     }, {

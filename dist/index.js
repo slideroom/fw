@@ -84,12 +84,6 @@ Object.defineProperty(exports, "ViewEngine", {
     return _viewEngine.ViewEngine;
   }
 });
-Object.defineProperty(exports, "View", {
-  enumerable: true,
-  get: function get() {
-    return _viewEngine.View;
-  }
-});
 Object.defineProperty(exports, "prop", {
   enumerable: true,
   get: function get() {
@@ -106,6 +100,18 @@ Object.defineProperty(exports, "provided", {
   enumerable: true,
   get: function get() {
     return _viewEngine.provided;
+  }
+});
+Object.defineProperty(exports, "makeVueComponent", {
+  enumerable: true,
+  get: function get() {
+    return _viewEngine.makeVueComponent;
+  }
+});
+Object.defineProperty(exports, "makeAndActivate", {
+  enumerable: true,
+  get: function get() {
+    return _viewEngine.makeAndActivate;
   }
 });
 

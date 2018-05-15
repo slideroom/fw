@@ -1,6 +1,6 @@
 import { kebab } from "./util";
 import { ContainerInstance, makerOf } from "./container";
-import { ViewEngine, View } from "./view-engine";
+import { ViewEngine, makeVueComponent } from "./view-engine";
 import { Bus } from "./bus";
 
 import Vue from "vue";
@@ -12,10 +12,12 @@ export type viewMaker<T> =
 
 // we need a quick router-view component
 Vue.component("router-view", {
-  render: function(h) {
-    return h("div", { pre: true }, [
-      h("div", { attrs: { class: "__router_view" } }, [h("div")]),
-    ]);
+  functional: true,
+  render: function(_, ctx) {
+    const h = ctx.parent.$createElement;
+    const component = (ctx.parent as any)._routeComponent;
+
+    return h(component, ctx.data, ctx.children);
   },
 });
 
@@ -58,6 +60,7 @@ export interface RouterConfig {
 
   current: string;
   fullLocation: string;
+  params: any;
 }
 
 export class RouteMatcher {
@@ -66,6 +69,7 @@ export class RouteMatcher {
 
   public current = "";
   public fullLocation = "";
+  public params: any = null;
 
   public add(route: string, view: viewMaker<any>, data = null, name = null) {
     this.routes.push(new Route(route.split("/"), view, data));
@@ -188,10 +192,10 @@ type LoadedView = {
   matchedOn: string[];
   queryParams: string;
   view: Function;
-  routerElement: () => any;
+  destroy: () => void;
   router: RouteMatcher;
-  routerElementComponent: Vue;
-  viewInstance: View<any>;
+  vueInstance: Vue;
+  component: typeof Vue;
 };
 
 export class Navigator {
@@ -247,10 +251,8 @@ export class ViewRouter {
 
   constructor(private viewEngine: ViewEngine, private starter: makerOf<any>) {
     if (iEVersion() == 11) {
-      console.log("using hashchange");
       window.addEventListener("hashchange", this.changed.bind(this));
     } else {
-      console.log("using popstate");
       window.addEventListener("popstate", this.changed.bind(this));
     }
   }
@@ -266,12 +268,10 @@ export class ViewRouter {
         matchedOn: null,
         queryParams: null,
         router: starterView.router,
-        routerElement: () => {
-          return starterView.routerElementComponent.$el.children[0].children[0];
-        },
-        routerElementComponent: starterView.routerElementComponent,
+        destroy: starterView.destroy,
         view: starterView.view,
-        viewInstance: starterView.viewInstance,
+        component: starterView.component,
+        vueInstance: starterView.vueInstance,
       });
     }
 
@@ -314,15 +314,10 @@ export class ViewRouter {
 
     // i need to go through all of the elements above the index and trigger an unrender
     this.loadedViewsStack.forEach((v, idx) => {
-      if (idx > viewStackIndex && v.viewInstance) {
-        v.viewInstance.remove();
+      if (idx > viewStackIndex && v.destroy) {
+        v.destroy();
       }
     });
-
-    if (loadedView.routerElementComponent) {
-      loadedView.routerElementComponent.$destroy();
-      loadedView.routerElement().innerHTML = "";
-    }
 
     this.loadedViewsStack.splice(viewStackIndex + 1);
   }
@@ -384,15 +379,15 @@ export class ViewRouter {
     this.clearFrom(viewStackIndex);
 
     const view = await match.route.loadView();
-
     if (loadedView.router) {
       loadedView.router.current = match.route.name;
+      loadedView.router.params = match.params;
       loadedView.router.fullLocation = fullLocation;
     }
 
     const newElement = await this.runView(
       view,
-      loadedView.routerElement(),
+      loadedView.vueInstance,
       Object.assign({}, match.route.data, queryParams, match.params),
     );
 
@@ -402,12 +397,10 @@ export class ViewRouter {
         match.remaining.length == 0 ? queryParams : {},
       ),
       router: newElement.router,
-      routerElement: () => {
-        return newElement.routerElementComponent.$el.children[0].children[0];
-      },
-      routerElementComponent: newElement.routerElementComponent,
       view: match.route.view,
-      viewInstance: newElement.viewInstance,
+      destroy: newElement.destroy,
+      component: newElement.component,
+      vueInstance: newElement.vueInstance,
     });
 
     const idx = viewStackIndex + 1;
@@ -421,6 +414,62 @@ export class ViewRouter {
   }
 
   private async runView(view: makerOf<any>, where: any, params: any = null) {
+    let router: RouteMatcher = null;
+    let setupRes: any = null;
+    let activateRes: any = null;
+    let vueInstance: Vue = null;
+
+    let dataCreateResolver: () => void = null;
+    const dataCreate = new Promise<void>((res) => dataCreateResolver = res);
+
+    const component = makeVueComponent(view, (vue, instance) => {
+      vueInstance = vue;
+      if (typeof instance["registerRoutes"] == "function") {
+        const routerSetup = instance["registerRoutes"].bind(instance);
+        router = new RouteMatcher();
+        setupRes = routerSetup(router);
+      }
+
+      if (typeof instance["activate"] == "function") {
+        const activateFn = instance["activate"].bind(instance);
+        activateRes = activateFn(params);
+      }
+
+      dataCreateResolver();
+    });
+
+    if (where instanceof Vue) {
+      (where as any)._routeComponent = component;
+      where.$forceUpdate();
+    } else {
+      new component().$mount(where);
+    }
+
+    await dataCreate;
+
+    if (setupRes instanceof Promise) {
+      await setupRes;
+    }
+
+    if (activateRes instanceof Promise) {
+      await activateRes;
+    }
+
+    return {
+      router,
+      component,
+      view,
+      vueInstance,
+      destroy: () => {
+        if (where instanceof Vue) {
+          (where as any)._routeComponent = null;
+          where.$forceUpdate();
+        }
+      },
+    };
+
+    /*
+
     const v = this.viewEngine.loadView(view, params);
 
     const routerSetup = v.getRouterSetupFunction();
@@ -434,19 +483,29 @@ export class ViewRouter {
       if (setupRes instanceof Promise) {
         // go ahead and render the view, so if you wanted to, you can show a loader if you are
         // doing some sort of code splitting
-        v.renderTo(where);
+        if (where instanceof Vue)
+          v.renderIn(where);
+        else
+          v.renderTo(where);
+
         didRender = true;
 
         await setupRes;
       }
     }
 
-    if (!didRender) v.renderTo(where);
+    if (!didRender) {
+      if (where instanceof Vue)
+        v.renderIn(where);
+      else
+        v.renderTo(where);
+    }
 
     await v.activate();
 
-    const routerElementComponent = v.getRouterViewElement();
+    const routerElementComponent = v.getRouterViewComponent();
 
     return { view, router, routerElementComponent, viewInstance: v };
+    */
   }
 }

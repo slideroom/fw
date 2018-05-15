@@ -1,5 +1,6 @@
 import { makerOf, ContainerInstance } from "./container";
-import { ViewEngine } from "./view-engine";
+import { ViewEngine, makeVueComponent } from "./view-engine";
+import { kebab } from "./util";
 
 import { ViewRouter, Navigator } from "./router";
 import { Bus } from "./bus";
@@ -28,7 +29,9 @@ export class FrameworkConfig {
   }
 
   public registerComponents(...components: any[]) {
-    components.forEach(component => viewEngine.registerComponent(component));
+    components.forEach(component => {
+      Vue.component(kebab(component.name), makeVueComponent(component));
+    });
   }
 
   public async withConfig<T>(configType: makerOf<T>, fileName: string): Promise<T> {

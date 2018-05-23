@@ -450,15 +450,12 @@ var ViewRouter = exports.ViewRouter = function () {
                             case 25:
                                 view = _context3.sent;
 
-                                if (loadedView.router) {
-                                    loadedView.router.current = match.route.name;
-                                    loadedView.router.params = match.params;
-                                    loadedView.router.fullLocation = fullLocation;
-                                }
-                                _context3.next = 29;
+                                loadedView.router.current = match.route.name;
+                                loadedView.router.params = Object.assign({}, match.route.data, queryParams, match.params);
+                                _context3.next = 30;
                                 return this.runView(view, loadedView.vueInstance, Object.assign({}, match.route.data, queryParams, match.params));
 
-                            case 29:
+                            case 30:
                                 newElement = _context3.sent;
 
                                 this.loadedViewsStack.push({
@@ -471,10 +468,10 @@ var ViewRouter = exports.ViewRouter = function () {
                                     vueInstance: newElement.vueInstance
                                 });
                                 idx = viewStackIndex + 1;
-                                _context3.next = 34;
+                                _context3.next = 35;
                                 return this.runMatching(match.remaining, fullLocation, queryParams, this.loadedViewsStack[idx], idx);
 
-                            case 34:
+                            case 35:
                             case "end":
                                 return _context3.stop();
                         }
@@ -503,14 +500,14 @@ var ViewRouter = exports.ViewRouter = function () {
                                 });
                                 component = (0, _viewEngine.makeVueComponent)(view, function (vue, instance) {
                                     vueInstance = vue;
+                                    if (typeof instance["activate"] == "function") {
+                                        var activateFn = instance["activate"].bind(instance);
+                                        activateRes = activateFn(params);
+                                    }
                                     if (typeof instance["registerRoutes"] == "function") {
                                         var routerSetup = instance["registerRoutes"].bind(instance);
                                         router = new RouteMatcher();
                                         setupRes = routerSetup(router);
-                                    }
-                                    if (typeof instance["activate"] == "function") {
-                                        var activateFn = instance["activate"].bind(instance);
-                                        activateRes = activateFn(params);
                                     }
                                     dataCreateResolver();
                                 });

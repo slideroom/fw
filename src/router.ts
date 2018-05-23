@@ -346,6 +346,7 @@ export class ViewRouter {
       }
     }
 
+
     // ok, run the middle ware??
     if (loadedView.router.canNavigate(match.route, fullLocation) == false) {
       //this.clearFrom(viewStackIndex);
@@ -379,11 +380,8 @@ export class ViewRouter {
     this.clearFrom(viewStackIndex);
 
     const view = await match.route.loadView();
-    if (loadedView.router) {
-      loadedView.router.current = match.route.name;
-      loadedView.router.params = match.params;
-      loadedView.router.fullLocation = fullLocation;
-    }
+    loadedView.router.current = match.route.name;
+    loadedView.router.params = Object.assign({}, match.route.data, queryParams, match.params);
 
     const newElement = await this.runView(
       view,
@@ -424,15 +422,15 @@ export class ViewRouter {
 
     const component = makeVueComponent(view, (vue, instance) => {
       vueInstance = vue;
+      if (typeof instance["activate"] == "function") {
+        const activateFn = instance["activate"].bind(instance);
+        activateRes = activateFn(params);
+      }
+
       if (typeof instance["registerRoutes"] == "function") {
         const routerSetup = instance["registerRoutes"].bind(instance);
         router = new RouteMatcher();
         setupRes = routerSetup(router);
-      }
-
-      if (typeof instance["activate"] == "function") {
-        const activateFn = instance["activate"].bind(instance);
-        activateRes = activateFn(params);
       }
 
       dataCreateResolver();

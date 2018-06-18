@@ -7,6 +7,7 @@ export class NetworkException<T> {
     public statusCode: number,
     public result: T,
     public url: string,
+    public headers: NVP = {},
   ) {}
 }
 
@@ -102,7 +103,7 @@ export class Network {
     url: string,
     params: NVP,
     content?: any,
-  ): Promise<T> {
+  ): Promise<{ headers: NVP, body: T }> {
     return new Promise((res, rej) => {
       const p = new XMLHttpRequest();
       p.open(method, url + this.buildParamString(params), true);
@@ -139,13 +140,13 @@ export class Network {
 
         const parsedRes = parseResponse(response);
 
-        if (this.middleware.length > 0) {
-          // build context;
-          const responseContext: ResponseContext = new AResponseContext(
-            p,
-            parsedRes,
-          );
+        // build context;
+        const responseContext: ResponseContext = new AResponseContext(
+          p,
+          parsedRes,
+        );
 
+        if (this.middleware.length > 0) {
           this.middleware.reverse().forEach(m => {
             const instance = ContainerInstance.get(m);
             if (isResponseMiddleware(instance)) {
@@ -155,9 +156,9 @@ export class Network {
         }
 
         if (status >= 200 && status < 300) {
-          res(parsedRes);
+          res({ body: parsedRes, headers: responseContext.headers });
         } else {
-          rej(new NetworkException(status, parsedRes, url));
+          rej(new NetworkException(status, parsedRes, url, responseContext.headers));
         }
       });
 
@@ -186,7 +187,7 @@ export class Network {
     url: string,
     content: any,
     params: NVP = null,
-  ): Promise<T> {
+  ): Promise<{ headers: NVP; body: T }> {
     return this.doRequest<T>("POST", url, params, content);
   }
 
@@ -194,21 +195,21 @@ export class Network {
     url: string,
     content: any,
     params: NVP = null,
-  ): Promise<T> {
+  ): Promise<{ headers: NVP; body: T }> {
     return this.doRequest<T>("PUT", url, params, content);
   }
 
   public get<T>(
     url: string,
     params: NVP = null,
-  ): Promise<T> {
+  ): Promise<{ headers: NVP; body: T }> {
     return this.doRequest<T>("GET", url, params);
   }
 
   public delete<T>(
     url: string,
     params: NVP = null,
-  ): Promise<T> {
+  ): Promise<{ headers: NVP; body: T }> {
     return this.doRequest<T>("DELETE", url, params);
   }
 }

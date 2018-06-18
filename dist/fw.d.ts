@@ -144,7 +144,8 @@ declare module 'fw/network' {
 	    statusCode: number;
 	    result: T;
 	    url: string;
-	    constructor(statusCode: number, result: T, url: string);
+	    headers: NVP;
+	    constructor(statusCode: number, result: T, url: string, headers?: NVP);
 	}
 	export interface ResponseContext {
 	    headers: NVP;
@@ -166,10 +167,22 @@ declare module 'fw/network' {
 	    addMiddleware(m: makerOf<NetworkMiddleware>): void;
 	    private doRequest<T>(method, url, params, content?);
 	    private buildParamString(params);
-	    post<T>(url: string, content: any, params?: NVP): Promise<T>;
-	    put<T>(url: string, content: any, params?: NVP): Promise<T>;
-	    get<T>(url: string, params?: NVP): Promise<T>;
-	    delete<T>(url: string, params?: NVP): Promise<T>;
+	    post<T>(url: string, content: any, params?: NVP): Promise<{
+	        headers: NVP;
+	        body: T;
+	    }>;
+	    put<T>(url: string, content: any, params?: NVP): Promise<{
+	        headers: NVP;
+	        body: T;
+	    }>;
+	    get<T>(url: string, params?: NVP): Promise<{
+	        headers: NVP;
+	        body: T;
+	    }>;
+	    delete<T>(url: string, params?: NVP): Promise<{
+	        headers: NVP;
+	        body: T;
+	    }>;
 	}
 
 }

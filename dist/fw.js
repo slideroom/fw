@@ -101,7 +101,8 @@ var FrameworkConfig = exports.FrameworkConfig = function () {
         key: "withConfig",
         value: function withConfig(configType, fileName) {
             return __awaiter(this, void 0, void 0, /*#__PURE__*/regeneratorRuntime.mark(function _callee() {
-                var n, res, configInstance;
+                var n, _ref, body, configInstance;
+
                 return regeneratorRuntime.wrap(function _callee$(_context) {
                     while (1) {
                         switch (_context.prev = _context.next) {
@@ -111,15 +112,16 @@ var FrameworkConfig = exports.FrameworkConfig = function () {
                                 return n.get(fileName);
 
                             case 3:
-                                res = _context.sent;
+                                _ref = _context.sent;
+                                body = _ref.body;
                                 configInstance = _container.ContainerInstance.get(configType);
 
-                                Object.keys(res).forEach(function (key) {
-                                    configInstance[key] = res[key];
+                                Object.keys(body).forEach(function (key) {
+                                    configInstance[key] = body[key];
                                 });
                                 return _context.abrupt("return", configInstance);
 
-                            case 7:
+                            case 8:
                             case "end":
                                 return _context.stop();
                         }

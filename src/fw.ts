@@ -36,12 +36,12 @@ export class FrameworkConfig {
 
   public async withConfig<T>(configType: makerOf<T>, fileName: string): Promise<T> {
     const n = ContainerInstance.get(Network);
-    const res = await n.get(fileName);
+    const { body } = await n.get(fileName);
 
     const configInstance = ContainerInstance.get(configType);
 
-    Object.keys(res).forEach(key => {
-      configInstance[key] = res[key];
+    Object.keys(body).forEach(key => {
+      configInstance[key] = body[key];
     });
 
     return configInstance;

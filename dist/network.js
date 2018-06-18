@@ -12,11 +12,14 @@ var _container = require("./container");
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var NetworkException = exports.NetworkException = function NetworkException(statusCode, result, url) {
+    var headers = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
+
     _classCallCheck(this, NetworkException);
 
     this.statusCode = statusCode;
     this.result = result;
     this.url = url;
+    this.headers = headers;
 };
 
 function parseResponse(res) {
@@ -124,9 +127,9 @@ var Network = exports.Network = function () {
                         status = p.status;
 
                     var parsedRes = parseResponse(response);
+                    // build context;
+                    var responseContext = new AResponseContext(p, parsedRes);
                     if (_this.middleware.length > 0) {
-                        // build context;
-                        var responseContext = new AResponseContext(p, parsedRes);
                         _this.middleware.reverse().forEach(function (m) {
                             var instance = _container.ContainerInstance.get(m);
                             if (isResponseMiddleware(instance)) {
@@ -135,9 +138,9 @@ var Network = exports.Network = function () {
                         });
                     }
                     if (status >= 200 && status < 300) {
-                        res(parsedRes);
+                        res({ body: parsedRes, headers: responseContext.headers });
                     } else {
-                        rej(new NetworkException(status, parsedRes, url));
+                        rej(new NetworkException(status, parsedRes, url, responseContext.headers));
                     }
                 });
                 p.send(content ? JSON.stringify(content) : undefined);

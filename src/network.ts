@@ -198,6 +198,14 @@ export class Network {
     return this.doRequest<T>("PUT", url, params, content);
   }
 
+  public patch<T>(
+    url: string,
+    content: any,
+    params: NVP = null,
+  ): Promise<T> {
+    return this.doRequest<T>("PATCH", url, params, content);
+  }
+
   public get<T>(
     url: string,
     params: NVP = null,

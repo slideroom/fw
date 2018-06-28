@@ -178,6 +178,7 @@ declare module 'fw/network' {
 	    private buildParamString(params);
 	    post<T>(url: string, content: any, params?: NVP): Promise<T>;
 	    put<T>(url: string, content: any, params?: NVP): Promise<T>;
+	    patch<T>(url: string, content: any, params?: NVP): Promise<T>;
 	    get<T>(url: string, params?: NVP): Promise<T>;
 	    delete<T>(url: string, params?: NVP): Promise<T>;
 	}

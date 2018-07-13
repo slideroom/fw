@@ -135,7 +135,7 @@ export const makeVueComponent = (
         if (typeof instance[m] == "function" && m != "constructor" && !specialMethods[m]) {
           const boundFn = instance[m].bind(this);
           this.$options.methods[m] = boundFn;
-          this[m] = boundFn;
+          (this as any)[m] = boundFn;
         }
       }
 

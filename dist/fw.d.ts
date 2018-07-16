@@ -175,6 +175,10 @@ declare module 'fw/network' {
 	        headers: NVP;
 	        body: T;
 	    }>;
+	    patch<T>(url: string, content: any, params?: NVP): Promise<{
+	        headers: NVP;
+	        body: T;
+	    }>;
 	    get<T>(url: string, params?: NVP): Promise<{
 	        headers: NVP;
 	        body: T;

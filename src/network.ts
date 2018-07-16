@@ -203,7 +203,7 @@ export class Network {
     url: string,
     content: any,
     params: NVP = null,
-  ): Promise<T> {
+  ): Promise<{ headers: NVP; body: T }> {
     return this.doRequest<T>("PATCH", url, params, content);
   }
 

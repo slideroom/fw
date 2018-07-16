@@ -52,6 +52,7 @@ var __awaiter = undefined && undefined.__awaiter || function (thisArg, _argument
 _vue2.default.component("router-view", {
     functional: true,
     render: function render(_, ctx) {
+        ctx.data.routerView = true;
         var h = ctx.parent.$createElement;
         var component = ctx.parent._routeComponent;
         return h(component, ctx.data, ctx.children);

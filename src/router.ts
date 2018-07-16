@@ -14,6 +14,8 @@ export type viewMaker<T> =
 Vue.component("router-view", {
   functional: true,
   render: function(_, ctx) {
+    (ctx.data as any).routerView = true;
+
     const h = ctx.parent.$createElement;
     const component = (ctx.parent as any)._routeComponent;
 

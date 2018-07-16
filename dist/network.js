@@ -173,6 +173,13 @@ var Network = exports.Network = function () {
             return this.doRequest("PUT", url, params, content);
         }
     }, {
+        key: "patch",
+        value: function patch(url, content) {
+            var params = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+
+            return this.doRequest("PATCH", url, params, content);
+        }
+    }, {
         key: "get",
         value: function get(url) {
             var params = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;

@@ -1,5 +1,5 @@
 {
-  "name": "fw",
+  "name": "@derekpitt/fw",
   "version": "0.3.3",
   "description": "a class based api for vue2. includes routing and simple DI.",
   "main": "dist/index.js",

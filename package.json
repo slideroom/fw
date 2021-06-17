@@ -1,6 +1,6 @@
 {
   "name": "@derekpitt/fw",
-  "version": "0.3.4",
+  "version": "0.3.10",
   "description": "a class based api for vue2. includes routing and simple DI.",
   "main": "dist/index.js",
   "scripts": {

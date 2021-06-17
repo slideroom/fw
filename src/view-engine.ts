@@ -78,8 +78,17 @@ const specialMethods = {
 
 declare var __webpack_require__: any;
 const getTemplateFor = (viewModel: makerOf<any>): string => {
-  if ((<any>viewModel).__template != null && (typeof (<any>viewModel).__template == "string")) {
-    return (<any>viewModel).__template;
+  const template = (<any>viewModel).__template;
+  if (template != null) {
+    if (typeof template === "object" && template.__esModule) {
+      const templateValue = template.default;
+      if (typeof templateValue === "string") {
+        return templateValue;
+      }
+    }
+    else if (typeof template === "string") {
+      return template;
+    }
   }
 
   for (let key in __webpack_require__.c) {

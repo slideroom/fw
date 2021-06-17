@@ -150,8 +150,16 @@ var specialMethods = {
     "provide": true
 };
 var _getTemplateFor = function _getTemplateFor(viewModel) {
-    if (viewModel.__template != null && typeof viewModel.__template == "string") {
-        return viewModel.__template;
+    var template = viewModel.__template;
+    if (template != null) {
+        if (typeof template === "object" && template.__esModule) {
+            var templateValue = template.default;
+            if (typeof templateValue === "string") {
+                return templateValue;
+            }
+        } else if (typeof template === "string") {
+            return template;
+        }
     }
     for (var key in __webpack_require__.c) {
         if (!__webpack_require__.c[key].exports) continue;
@@ -160,8 +168,8 @@ var _getTemplateFor = function _getTemplateFor(viewModel) {
         // need to loop through exports to see if what we exported matches c
         for (var exportKey in exports) {
             if (exports[exportKey] !== viewModel) continue;
-            var template = exports.__html;
-            return template;
+            var _template = exports.__html;
+            return _template;
         }
     }
     throw new Error("Can't find template for: " + viewModel.name);

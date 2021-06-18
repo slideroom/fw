@@ -24,10 +24,10 @@ export function prop(defaultValue = null) {
   };
 }
 
-export function provided() { // leaving room for defaults, when upgrading vue
+export function provided(defaultValue) { // leaving room for defaults, when upgrading vue
   return function(target, key, descriptor?) {
     const props: propDef[] = (Reflect as any).getMetadata("view-engine:provided", target.constructor) || [];
-    props.push({ key, defaultValue: null });
+    props.push({ key, defaultValue: defaultValue });
     (Reflect as any).defineMetadata("view-engine:provided", props, target.constructor);
   };
 }
@@ -46,10 +46,20 @@ function getProps(cl) {
 }
 
 function getProvided(cl) {
-  var props: propDef[] = (Reflect as any).getMetadata("view-engine:provided", cl) || [];
-  if (props.length == 0) return undefined;
+  const provides = (Reflect as any).getMetadata("view-engine:provided", cl) || [];
+  if (provides.length == 0) {
+    return undefined;
+  }
 
-  return props.map(p => p.key);
+  const injectObject = {};
+  provides.forEach(function (p) {
+    injectObject[p.key] = {
+      from: p.key,
+      default: p.defaultValue
+    };
+  });
+
+  return injectObject;
 }
 
 const makeComputedObject = (instance: any) => {
@@ -141,7 +151,7 @@ export const makeVueComponent = (
 
       this.$options.methods = {};
       for (let m of Object.getOwnPropertyNames(instance.constructor.prototype)) {
-        if (typeof instance[m] == "function" && m != "constructor" && !specialMethods[m]) {
+        if (this.$options.computed[m] === undefined && typeof instance[m] == "function" && m != "constructor" && !specialMethods[m]) {
           const boundFn = instance[m].bind(this);
           this.$options.methods[m] = boundFn;
           (this as any)[m] = boundFn;
@@ -189,6 +199,12 @@ export const makeVueComponent = (
           attachedFn.apply(this, []);
         }
       });
+    },
+    beforeDestroy: function beforeDestroy() {
+      var detachedFn = this.$data["beforeDetach"];
+      if (typeof detachedFn === "function") {
+        detachedFn.apply(this, []);
+      }
     },
     destroyed: function() {
       const detachedFn = this.$data["detached"];

@@ -107,7 +107,11 @@ export class Network {
     return new Promise((res, rej) => {
       const p = new XMLHttpRequest();
       p.open(method, url + this.buildParamString(params), true);
-      p.setRequestHeader("Content-Type", "application/json");
+      // if content is FormData, do nothing, just let the browser do it's thing
+      // otherwise, set this thing to json
+      if (!(content instanceof FormData)) {
+        p.setRequestHeader("Content-Type", "application/json");
+      }
       p.setRequestHeader(
         "Accept",
         "application/json, text/javascript, */*; q=0.01",
@@ -162,7 +166,11 @@ export class Network {
         }
       });
 
-      p.send(content ? JSON.stringify(content) : undefined);
+      if (content) {
+        p.send(content instanceof FormData ? content : JSON.stringify(content));
+      } else {
+        p.send();
+      }
     });
   }
 

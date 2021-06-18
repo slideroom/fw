@@ -102,7 +102,11 @@ var Network = exports.Network = function () {
             return new Promise(function (res, rej) {
                 var p = new XMLHttpRequest();
                 p.open(method, url + _this.buildParamString(params), true);
-                p.setRequestHeader("Content-Type", "application/json");
+                // if content is FormData, do nothing, just let the browser do it's thing
+                // otherwise, set this thing to json
+                if (!(content instanceof FormData)) {
+                    p.setRequestHeader("Content-Type", "application/json");
+                }
                 p.setRequestHeader("Accept", "application/json, text/javascript, */*; q=0.01");
                 if (_this.middleware.length > 0) {
                     // build context;
@@ -143,7 +147,11 @@ var Network = exports.Network = function () {
                         rej(new NetworkException(status, parsedRes, url, responseContext.headers));
                     }
                 });
-                p.send(content ? JSON.stringify(content) : undefined);
+                if (content) {
+                    p.send(content instanceof FormData ? content : JSON.stringify(content));
+                } else {
+                    p.send();
+                }
             });
         }
     }, {

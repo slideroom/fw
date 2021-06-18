@@ -84,10 +84,10 @@ function prop() {
         Reflect.defineMetadata("view-engine:props", props, target.constructor);
     };
 }
-function provided() {
+function provided(defaultValue) {
     return function (target, key, descriptor) {
         var props = Reflect.getMetadata("view-engine:provided", target.constructor) || [];
-        props.push({ key: key, defaultValue: null });
+        props.push({ key: key, defaultValue: defaultValue });
         Reflect.defineMetadata("view-engine:provided", props, target.constructor);
     };
 }
@@ -102,11 +102,16 @@ function getProps(cl) {
     return propObject;
 }
 function getProvided(cl) {
-    var props = Reflect.getMetadata("view-engine:provided", cl) || [];
-    if (props.length == 0) return undefined;
-    return props.map(function (p) {
-        return p.key;
+    var provides = Reflect.getMetadata("view-engine:provided", cl) || [];
+    if (provides.length == 0) return undefined;
+    var injectObject = {};
+    provides.forEach(function (p) {
+        injectObject[p.key] = {
+            from: p.key,
+            default: p.defaultValue
+        };
     });
+    return injectObject;
 }
 var makeComputedObject = function makeComputedObject(instance) {
     var obj = {};
@@ -207,7 +212,7 @@ var makeVueComponent = exports.makeVueComponent = function makeVueComponent(view
                 for (var _iterator2 = Object.getOwnPropertyNames(instance.constructor.prototype)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
                     var m = _step2.value;
 
-                    if (typeof instance[m] == "function" && m != "constructor" && !specialMethods[m]) {
+                    if (this.$options.computed[m] === undefined && typeof instance[m] == "function" && m != "constructor" && !specialMethods[m]) {
                         var boundFn = instance[m].bind(this);
                         this.$options.methods[m] = boundFn;
                         this[m] = boundFn;
@@ -286,6 +291,12 @@ var makeVueComponent = exports.makeVueComponent = function makeVueComponent(view
                     attachedFn.apply(_this2, []);
                 }
             });
+        },
+        beforeDestroy: function beforeDestroy() {
+            var detachedFn = this.$data["beforeDetach"];
+            if (typeof detachedFn === "function") {
+                detachedFn.apply(this, []);
+            }
         },
         destroyed: function destroyed() {
             var detachedFn = this.$data["detached"];

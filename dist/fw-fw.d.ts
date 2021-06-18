@@ -1,4 +1,4 @@
-declare module '@derekpitt/fw/container' {
+declare module 'fw/container' {
 	export interface makerOf<T> {
 	    new (...args: any[]): T;
 	}
@@ -15,7 +15,7 @@ declare module '@derekpitt/fw/container' {
 	export const ContainerInstance: Container;
 
 }
-declare module '@derekpitt/fw/util' {
+declare module 'fw/util' {
 	export function kebab(name: string): string;
 	export class CloseStack {
 	    private theCloseStack;
@@ -28,8 +28,8 @@ declare module '@derekpitt/fw/util' {
 	}
 
 }
-declare module '@derekpitt/fw/view-engine' {
-	import { Container, makerOf, ContainerOverrider } from '@derekpitt/fw/container';
+declare module 'fw/view-engine' {
+	import { Container, makerOf, ContainerOverrider } from 'fw/container';
 	export class ComponentEventBus {
 	    private instance;
 	    constructor(instance: any);
@@ -49,8 +49,8 @@ declare module '@derekpitt/fw/view-engine' {
 	}
 
 }
-declare module '@derekpitt/fw/bus' {
-	import { makerOf } from '@derekpitt/fw/container';
+declare module 'fw/bus' {
+	import { makerOf } from 'fw/container';
 	export interface Subscription {
 	    dispose: () => void;
 	}
@@ -61,9 +61,9 @@ declare module '@derekpitt/fw/bus' {
 	}
 
 }
-declare module '@derekpitt/fw/router' {
-	import { makerOf } from '@derekpitt/fw/container';
-	import { ViewEngine } from '@derekpitt/fw/view-engine';
+declare module 'fw/router' {
+	import { makerOf } from 'fw/container';
+	import { ViewEngine } from 'fw/view-engine';
 	export type viewMaker<T> = makerOf<T> | {
 	    (): Promise<makerOf<T>>;
 	} | {
@@ -135,8 +135,8 @@ declare module '@derekpitt/fw/router' {
 	}
 
 }
-declare module '@derekpitt/fw/network' {
-	import { makerOf } from '@derekpitt/fw/container';
+declare module 'fw/network' {
+	import { makerOf } from 'fw/container';
 	export type NVP = {
 	    [name: string]: string;
 	};
@@ -190,8 +190,8 @@ declare module '@derekpitt/fw/network' {
 	}
 
 }
-declare module '@derekpitt/fw/fw' {
-	import { makerOf } from '@derekpitt/fw/container';
+declare module 'fw/fw' {
+	import { makerOf } from 'fw/container';
 	import Vue, { PluginObject } from "vue";
 	export function inject(target: any): void;
 	export function needs(...things: any[]): (target: any) => void;
@@ -206,13 +206,13 @@ declare module '@derekpitt/fw/fw' {
 	export function bootstrap(cb: (fwConfig: FrameworkConfig) => Promise<void>): Promise<void>;
 
 }
-declare module '@derekpitt/fw' {
-	export { Container, ContainerInstance } from '@derekpitt/fw/container';
-	export { Navigator, RouterConfig, Route, ViewRouterLocationChanged } from '@derekpitt/fw/router';
-	export { bootstrap, inject, needs, FrameworkConfig } from '@derekpitt/fw/fw';
-	export { Bus, Subscription } from '@derekpitt/fw/bus';
-	export { ViewEngine, prop, ComponentEventBus, provided, makeVueComponent, makeAndActivate } from '@derekpitt/fw/view-engine';
-	export { Network, NetworkException, NVP, NetworkMiddleware, NetworkRequestMiddleware, NetworkResponseMiddleware, RequestContext, ResponseContext } from '@derekpitt/fw/network';
-	export { kebab, CloseStack } from '@derekpitt/fw/util';
+declare module 'fw' {
+	export { Container, ContainerInstance } from 'fw/container';
+	export { Navigator, RouterConfig, Route, ViewRouterLocationChanged } from 'fw/router';
+	export { bootstrap, inject, needs, FrameworkConfig } from 'fw/fw';
+	export { Bus, Subscription } from 'fw/bus';
+	export { ViewEngine, prop, ComponentEventBus, provided, makeVueComponent, makeAndActivate } from 'fw/view-engine';
+	export { Network, NetworkException, NVP, NetworkMiddleware, NetworkRequestMiddleware, NetworkResponseMiddleware, RequestContext, ResponseContext } from 'fw/network';
+	export { kebab, CloseStack } from 'fw/util';
 
 }

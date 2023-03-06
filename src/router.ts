@@ -3,7 +3,7 @@ import { ContainerInstance, makerOf } from "./container";
 import { ViewEngine, makeVueComponent } from "./view-engine";
 import { Bus } from "./bus";
 
-import Vue from "vue";
+import * as Vue from "vue";
 
 export type viewMaker<T> =
   | makerOf<T>
@@ -11,8 +11,8 @@ export type viewMaker<T> =
   | { (): Promise<{ default: makerOf<T> }> };
 
 // we need a quick router-view component
-Vue.component("router-view", {
-  functional: true,
+Vue.defineComponent({
+  name: "router-view",
   render: function(_, ctx) {
     (ctx.data as any).routerView = true;
 
@@ -196,8 +196,9 @@ type LoadedView = {
   view: Function;
   destroy: () => void;
   router: RouteMatcher;
+  // @ts-ignore
   vueInstance: Vue;
-  component: typeof Vue;
+  component: any;
 };
 
 export class Navigator {
@@ -417,6 +418,7 @@ export class ViewRouter {
     let router: RouteMatcher = null;
     let setupRes: any = null;
     let activateRes: any = null;
+    // @ts-ignore
     let vueInstance: Vue = null;
 
     let dataCreateResolver: () => void = null;
@@ -438,11 +440,12 @@ export class ViewRouter {
       dataCreateResolver();
     });
 
+    // @ts-ignore
     if (where instanceof Vue) {
       (where as any)._routeComponent = component;
       where.$forceUpdate();
     } else {
-      new component().$mount(where);
+      component.mount(where);
     }
 
     await dataCreate;
@@ -461,6 +464,7 @@ export class ViewRouter {
       view,
       vueInstance,
       destroy: () => {
+        // @ts-ignore
         if (where instanceof Vue) {
           (where as any)._routeComponent = null;
           where.$forceUpdate();

@@ -1,8 +1,7 @@
 import { kebab } from "./util";
 import { Container, makerOf, ContainerOverrider, ContainerInstance } from "./container";
 
-import Vue, { PropOptions } from "vue";
-
+import * as Vue from 'vue'
 
 export class ComponentEventBus {
   constructor(private instance: any) { }
@@ -34,7 +33,7 @@ export function provided(defaultValue) { // leaving room for defaults, when upgr
 
 function getProps(cl) {
   var props: propDef[] = (Reflect as any).getMetadata("view-engine:props", cl) || [];
-  let propObject: { [key: string]: PropOptions } = {};
+  let propObject: { [key: string]: any } = {};
 
   props.forEach(p => {
       propObject[p.key] = {
@@ -119,15 +118,16 @@ const getTemplateFor = (viewModel: makerOf<any>): string => {
   throw new Error(`Can't find template for: ${viewModel.name}`);
 };
 
+
 export const makeVueComponent = (
   viewModel: makerOf<any>,
+  // @ts-ignore
   onInstanceCreated: (vue: Vue, instance: any) => void = null,
   overrider: (o: ContainerOverrider) => void = null,
-): typeof Vue => {
+) => {
   const props = getProps(viewModel);
   const provided = getProvided(viewModel);
-
-  return Vue.extend({
+  return Vue.createApp({
     name: kebab(viewModel.name),
     template: getTemplateFor(viewModel),
     data: function() {
@@ -236,7 +236,7 @@ export const makeAndActivate = async (
       dataCreateResolver();
     }, overrider);
 
-    new ve().$mount(where);
+    ve.mount(where);
     await dataCreate;
 };
 
@@ -249,13 +249,13 @@ export class ViewEngine {
     return getTemplateFor(c);
   }
 
-  public registerComponent<T>(c: makerOf<T>) {
+  public registerComponent<T>(c: makerOf<T>, app) {
     if (this.components.get(c)) return;
 
     const component = makeVueComponent(c);
 
     this.components.set(c, true);
 
-    Vue.component(kebab(c.name), component);
+    app.component(kebab(c.name), component);
   }
 }

@@ -5,7 +5,11 @@ import { kebab } from "./util";
 import { ViewRouter, Navigator } from "./router";
 import { Bus } from "./bus";
 import { Network } from "./network";
-import Vue, { PluginObject } from "vue";
+
+import Vue, {PluginObject} from "vue";
+declare module "vue" {
+  export type PluginObject<T> = (app: Vue.App, ...options: any[]) => any;
+}
 
 export function inject(target) { return; }
 
@@ -28,9 +32,9 @@ export class FrameworkConfig {
     ContainerInstance.use(key, instance);
   }
 
-  public registerComponents(...components: any[]) {
+  public registerComponents(components: any[], app) {
     components.forEach(component => {
-      Vue.component(kebab(component.name), makeVueComponent(component));
+      app.component(kebab(component.name), makeVueComponent(component));
     });
   }
 
@@ -47,8 +51,8 @@ export class FrameworkConfig {
     return configInstance;
   }
 
-  public useVuePlugin<T>(plugin: PluginObject<T> | ((vue: typeof Vue, options?: T) => void)) {
-    Vue.use(plugin);
+  public useVuePlugin<T>(plugin: PluginObject<T> | ((vue: typeof Vue, options?: T) => void), app) {
+    app.use(plugin);
   }
 }
 

@@ -6,9 +6,19 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "moduleResolution": "node",
-    "baseUrl": "src"
+    "baseUrl": "./src",
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "sourceMap": true,
+    "outDir": "dist",
+    "downlevelIteration": true,
+    "declarationDir": "types",
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true
   },
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["src",]
 }

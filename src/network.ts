@@ -13,6 +13,9 @@ export class NetworkException<T> {
 
 function parseResponse(res) {
   try {
+    if(typeof res === 'string' || res instanceof String)
+        return res;
+    
     return res ? JSON.parse(res) : null;
   } catch (err) {
     return null;

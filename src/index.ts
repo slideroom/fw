@@ -1,17 +1,17 @@
-export { Container, ContainerInstance } from "./container";
+export { Container, ContainerInstance } from "./container.js";
 export {
   Navigator, Route,
   ViewRouterLocationChanged
-} from "./router";
-export type { RouterConfig } from "./router";
-export { bootstrap, inject, needs, FrameworkConfig } from "./fw";
-export { Bus } from "./bus";
-export type { Subscription } from "./bus";
-export { ViewEngine, prop, ComponentEventBus, provided, makeVueComponent, makeAndActivate } from "./view-engine";
+} from "./router.js";
+export type { RouterConfig } from "./router.js";
+export { bootstrap, inject, needs, FrameworkConfig } from "./fw.js";
+export { Bus } from "./bus.js";
+export type { Subscription } from "./bus.js";
+export { ViewEngine, prop, ComponentEventBus, provided, makeVueComponent, makeAndActivate } from "./view-engine.js";
 export {
   Network,
   NetworkException
-} from "./network";
+} from "./network.js";
 export type {
   NVP,
   NetworkMiddleware,
@@ -19,5 +19,5 @@ export type {
   NetworkResponseMiddleware,
   RequestContext,
   ResponseContext
-} from "./network";
-export { kebab, CloseStack } from "./util";
+} from "./network.js";
+export { kebab, CloseStack } from "./util.js";

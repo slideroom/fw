@@ -1,7 +1,7 @@
-import { kebab } from "./util";
-import { ContainerInstance } from "./container";
-import { makeVueComponent } from "./view-engine";
-import { Bus } from "./bus";
+import { kebab } from "./util.js";
+import { ContainerInstance } from "./container.js";
+import { makeVueComponent } from "./view-engine.js";
+import { Bus } from "./bus.js";
 import Vue from "vue";
 // we need a quick router-view component
 Vue.component("router-view", {

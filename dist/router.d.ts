@@ -1,5 +1,5 @@
-import { makerOf } from "./container";
-import { ViewEngine } from "./view-engine";
+import { makerOf } from "./container.js";
+import { ViewEngine } from "./view-engine.js";
 export type viewMaker<T> = makerOf<T> | {
     (): Promise<makerOf<T>>;
 } | {

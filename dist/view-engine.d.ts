@@ -1,4 +1,4 @@
-import { Container, makerOf, ContainerOverrider } from "./container";
+import { Container, makerOf, ContainerOverrider } from "./container.js";
 import Vue from "vue";
 export declare class ComponentEventBus {
     private instance;

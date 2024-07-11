@@ -2,7 +2,7 @@ import assert from 'assert';
 import { describe, it } from "node:test";
 import "reflect-metadata";
 
-import { Route, RouteMatcher } from "../src/router";
+import { Route, RouteMatcher } from "../src/router.js";
 
 class EmptyView { }
 

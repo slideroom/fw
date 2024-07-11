@@ -1,5 +1,5 @@
-import { kebab } from "./util";
-import { ContainerInstance } from "./container";
+import { kebab } from "./util.js";
+import { ContainerInstance } from "./container.js";
 import Vue from "vue";
 export class ComponentEventBus {
     instance;

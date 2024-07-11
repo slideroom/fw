@@ -1,4 +1,4 @@
-import { makerOf } from "./container";
+import { makerOf } from "./container.js";
 import Vue, { PluginObject } from "vue";
 export declare function inject(target: any): void;
 export declare function needs(...things: any[]): (target: any) => void;

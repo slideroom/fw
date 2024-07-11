@@ -1,4 +1,4 @@
-import { makerOf } from "./container";
+import { makerOf } from "./container.js";
 export type NVP = {
     [name: string]: string;
 };

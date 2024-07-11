@@ -12,7 +12,7 @@
     "sourceMap": true,
     "strict": false,
     "outDir": "dist",
-    "target": "ES2022",
+    "target": "ESNext",
   },
   "include": [
     "src"

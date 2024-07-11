@@ -1,4 +1,4 @@
-import { ContainerInstance } from "./container";
+import { ContainerInstance } from "./container.js";
 export class NetworkException {
     statusCode;
     result;

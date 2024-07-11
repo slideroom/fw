@@ -1,21 +1,23 @@
 export { Container, ContainerInstance } from "./container";
 export {
-  Navigator,
-  RouterConfig,
-  Route,
-  ViewRouterLocationChanged,
+  Navigator, Route,
+  ViewRouterLocationChanged
 } from "./router";
+export type { RouterConfig } from "./router";
 export { bootstrap, inject, needs, FrameworkConfig } from "./fw";
-export { Bus, Subscription } from "./bus";
+export { Bus } from "./bus";
+export type { Subscription } from "./bus";
 export { ViewEngine, prop, ComponentEventBus, provided, makeVueComponent, makeAndActivate } from "./view-engine";
 export {
   Network,
-  NetworkException,
+  NetworkException
+} from "./network";
+export type {
   NVP,
   NetworkMiddleware,
   NetworkRequestMiddleware,
   NetworkResponseMiddleware,
   RequestContext,
-  ResponseContext,
+  ResponseContext
 } from "./network";
 export { kebab, CloseStack } from "./util";

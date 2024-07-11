@@ -1,4 +1,4 @@
-import { ContainerInstance, makerOf } from "./container";
+import { ContainerInstance, makerOf } from "./container.js";
 
 export type NVP = { [name: string]: string };
 

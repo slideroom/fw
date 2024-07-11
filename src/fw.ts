@@ -1,10 +1,10 @@
-import { makerOf, ContainerInstance } from "./container";
-import { ViewEngine, makeVueComponent } from "./view-engine";
-import { kebab } from "./util";
+import { makerOf, ContainerInstance } from "./container.js";
+import { ViewEngine, makeVueComponent } from "./view-engine.js";
+import { kebab } from "./util.js";
 
-import { ViewRouter, Navigator } from "./router";
-import { Bus } from "./bus";
-import { Network } from "./network";
+import { ViewRouter, Navigator } from "./router.js";
+import { Bus } from "./bus.js";
+import { Network } from "./network.js";
 import Vue, { PluginObject } from "vue";
 
 export function inject(target) { return; }

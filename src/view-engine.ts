@@ -1,5 +1,5 @@
-import { kebab } from "./util";
-import { Container, makerOf, ContainerOverrider, ContainerInstance } from "./container";
+import { kebab } from "./util.js";
+import { Container, makerOf, ContainerOverrider, ContainerInstance } from "./container.js";
 
 import Vue, { PropOptions } from "vue";
 

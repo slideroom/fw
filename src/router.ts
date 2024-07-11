@@ -1,7 +1,7 @@
-import { kebab } from "./util";
-import { ContainerInstance, makerOf } from "./container";
-import { ViewEngine, makeVueComponent } from "./view-engine";
-import { Bus } from "./bus";
+import { kebab } from "./util.js";
+import { ContainerInstance, makerOf } from "./container.js";
+import { ViewEngine, makeVueComponent } from "./view-engine.js";
+import { Bus } from "./bus.js";
 
 import Vue from "vue";
 

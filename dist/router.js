@@ -234,7 +234,7 @@ export class ViewRouter {
         this.loadedViewsStack.splice(viewStackIndex + 1);
     }
     async runMatching(location, fullLocation, queryParams, loadedView, viewStackIndex) {
-        if (loadedView.router == null)
+        if (!(loadedView && loadedView.router))
             return;
         loadedView.router.fullLocation = fullLocation;
         let match = loadedView.router.matches(location);

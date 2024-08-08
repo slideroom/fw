@@ -331,7 +331,7 @@ export class ViewRouter {
     loadedView: LoadedView,
     viewStackIndex: number,
   ) {
-    if (loadedView.router == null) return;
+    if (!(loadedView && loadedView.router)) return;
     loadedView.router.fullLocation = fullLocation;
 
     let match = loadedView.router.matches(location);

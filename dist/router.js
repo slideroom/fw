@@ -271,6 +271,9 @@ export class ViewRouter {
         loadedView.router.current = match.route.name;
         loadedView.router.params = Object.assign({}, match.route.data, queryParams, match.params);
         const newElement = await this.runView(view, loadedView.vueInstance, Object.assign({}, match.route.data, queryParams, match.params));
+        if (!newElement?.router) {
+            return;
+        }
         this.loadedViewsStack.push({
             matchedOn: match.matchedOn,
             queryParams: JSON.stringify(match.remaining.length == 0 ? queryParams : {}),

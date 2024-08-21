@@ -391,6 +391,10 @@ export class ViewRouter {
       Object.assign({}, match.route.data, queryParams, match.params),
     );
 
+    if (!newElement?.router) {
+      return;
+    }
+
     this.loadedViewsStack.push({
       matchedOn: match.matchedOn,
       queryParams: JSON.stringify(

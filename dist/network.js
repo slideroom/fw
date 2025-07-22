@@ -16,7 +16,7 @@ function parseResponse(res) {
         return res ? JSON.parse(res) : null;
     }
     catch (err) {
-        return null;
+        return (typeof res === 'string' || res instanceof String) ? res : null;
     }
 }
 const isResponseMiddleware = (instance) => {

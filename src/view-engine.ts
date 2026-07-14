@@ -1,7 +1,7 @@
 import { kebab } from "./util.js";
 import { Container, makerOf, ContainerOverrider, ContainerInstance } from "./container.js";
 
-import Vue, { PropOptions } from "vue";
+import Vue, { PropOptions, VNode, CreateElement } from "vue";
 
 
 export class ComponentEventBus {
@@ -119,6 +119,44 @@ const getTemplateFor = (viewModel: makerOf<any>): string => {
   throw new Error(`Can't find template for: ${viewModel.name}`);
 };
 
+// The shape produced by Vue's template compiler (`compileToFunctions` / `vue/compiler-sfc`): a
+// `render` function plus any hoisted `staticRenderFns`. Both invoke `createElement` via `this`, so
+// they stay assignable to Vue's `ComponentOptions['render']` slot.
+type RenderFn = (this: Vue, createElement: CreateElement) => VNode;
+
+interface CompiledTemplate {
+  render: RenderFn;
+  staticRenderFns: RenderFn[];
+}
+
+const isObject = (value: unknown): value is Record<string, unknown> =>
+  value != null && typeof value === "object";
+
+// When a view's `.html` was precompiled at build time (e.g. by a webpack loader that runs Vue's
+// template compiler), `__template` is a module exposing a `render` function instead of a raw string.
+// Returning that lets the runtime use the compiled render fn directly, so no `new Function()` template
+// compile happens at runtime — which is what allows the app to run under a Content-Security-Policy
+// without `'unsafe-eval'`. Returns null when the template is still a string, so callers fall back to
+// the legacy `template:` path (fully backward compatible).
+const getRenderFor = (viewModel: makerOf<any>): CompiledTemplate | null => {
+  let template: unknown = (viewModel as { __template?: unknown }).__template;
+
+  if (isObject(template) && template.__esModule === true && "default" in template) {
+    template = template.default;
+  }
+
+  if (isObject(template) && typeof template.render === "function") {
+    return {
+      render: template.render as RenderFn,
+      staticRenderFns: Array.isArray(template.staticRenderFns)
+        ? (template.staticRenderFns as RenderFn[])
+        : [],
+    };
+  }
+
+  return null;
+};
+
 export const makeVueComponent = (
   viewModel: makerOf<any>,
   onInstanceCreated: (vue: Vue, instance: any) => void = null,
@@ -127,9 +165,16 @@ export const makeVueComponent = (
   const props = getProps(viewModel);
   const provided = getProvided(viewModel);
 
+  const compiled = getRenderFor(viewModel);
+
   return Vue.extend({
     name: kebab(viewModel.name),
-    template: getTemplateFor(viewModel),
+    // When the view was precompiled, apply the compiled `render`/`staticRenderFns` directly so no
+    // runtime `new Function()` template compile is needed (that's what lets the app run under a CSP
+    // without `'unsafe-eval'`). Otherwise fall back to the raw string `template:`. `staticRenderFns`
+    // isn't declared on Vue's public `ComponentOptions`, but it's a valid runtime option and is
+    // merged in here via object spread.
+    ...(compiled ?? { template: getTemplateFor(viewModel) }),
     data: function() {
       const instance = ContainerInstance.get(viewModel, false, (o) => {
         o.use(ComponentEventBus, new ComponentEventBus(this));
